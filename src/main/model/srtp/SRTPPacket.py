@@ -10,10 +10,10 @@ class SRTPPacket:
     # the authentication algorithm indicated in the cryptographic context,
     # and the session authentication key found in Step 4.  Append the authentication tag to the packet.
     # length % 8 btis = 0
-    authTag: list[str] 
+    authTag: list[str] = []
     
     # SRTP MKI of variable length MKI % 8 bits = 0
-    masterKeyIdentifier: list[str]
+    masterKeyIdentifier: list[str] = []
     
     # Whether or not the message is authentified or not or not yet
     authentified: bool | None = None

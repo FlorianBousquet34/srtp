@@ -2,7 +2,7 @@ from datetime import datetime
 from main.scheduler.RTCPScheduler import RTCPScheduler
 from main.model.rtp.RTPParticipant import RTPParticipant
 from main.model.rtp.RTPSession import RTPSession
-
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 class RTCPParticipantState :
     
@@ -10,13 +10,21 @@ class RTCPParticipantState :
     # !!! The curent time is initiated at 0
     # when the participant joins the session
     
-    def __init__(self, rtpSession: RTPSession, participant: RTPParticipant) -> None:
-        self.rtpSession = rtpSession
-        self.targetBandwidth = rtpSession.sessionBandwidth * rtpSession.controlBandwithFraction
-        self.averagePacketSize = rtpSession.averagePacketSize
+    def __init__(self, session: RTPSession, participant: RTPParticipant) -> None:
+        self.session = session
+        self.targetBandwidth = session.profile.sessionBandwidth * session.profile.controlBandwithFraction
+        self.averagePacketSize = session.profile.estimatedPacketSize
         self.participant = participant
         self.participantJoinTime = datetime.utcnow()
         RTCPScheduler.scheduleNextRTCPMessage(self)
+        
+    def refresh(self):
+        
+        # Refresh the state : tc, sender, members,
+        
+        self.tc = (datetime.utcnow() - self.participantJoinTime).total_seconds()
+        self.members = len(self.session.sessionMembers)
+        self.senders = len(self.session.senders)
     
     # The participant
     participant: RTPParticipant
@@ -25,10 +33,15 @@ class RTCPParticipantState :
     participantJoinTime : datetime
     
     # The RTP Session of the participant
-    rtpSession: RTPSession
+    session: RTPSession
     
-    # The time of the last transmitted packet
+    # The time of the last transmitted rtcp packet
     tp : float = 0
+    
+    # The current time
+    # The refresh method needs to be called before
+    # accessing this value
+    tc : float = 0
     
     # The time to send the next rtcp message
     tn : float
@@ -57,3 +70,6 @@ class RTCPParticipantState :
     
     # The particpant has not send packets yet
     initial: bool = True
+    
+    # The RTCP Job shceduler
+    rtcpScheduler: AsyncIOScheduler

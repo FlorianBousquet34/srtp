@@ -8,8 +8,10 @@ class RTPHeader:
     fixedHeader: RTPFixedHeader
     
     # Enable the header extension implementations
-    headerExtesion: RTPHeaderExtension
+    headerExtension: RTPHeaderExtension
     
     # The list of constribution source (CSRC)
     # from 0 up to 15 items of 32 bits identifier
-    csrcList: list[int]
+    csrcList: list[int] = []
+    
+    rawHeader : bytearray

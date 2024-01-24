@@ -29,4 +29,4 @@ class RTPFixedHeader:
     timestamp: datetime
     
     # SSRC synchronized source on 32 bits
-    synchSource: int 
+    ssrc: int 

@@ -8,4 +8,4 @@ class RTPHeaderExtension:
     length: int 
     
     # list of size length of 32 bits words
-    wordList: list[str] 
+    wordList: list[str] = []
