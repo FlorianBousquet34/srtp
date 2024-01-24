@@ -17,3 +17,4 @@ class RTCPJobExecutor:
         RTCPScheduler.scheduleNextRTCPMessage(session.participant.participantState)
         session.participant.participantState.tp = (datetime.utcnow() - session.participant.participantState.participantJoinTime).total_seconds()
         session.participant.participantState.pmembers = len(session.sessionMembers)
+        session.participant.participantState.initial = False

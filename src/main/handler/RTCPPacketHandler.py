@@ -1,5 +1,6 @@
 
 from datetime import datetime
+from main.handler.RTCPReverseAlgorithm import RTCPReverseAlgorithm
 from main.model.rtp.RTPPacket import RTPPacket
 from main.model.rtp.RTPSession import RTPSession
 from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
@@ -69,6 +70,10 @@ class RTCPPacketHandler:
          # Remove the user from session members table
          
          session.markBYEEvent(packet.header.fixedHeader.ssrc)
+         
+         RTCPReverseAlgorithm.applyRTCPReverseAlgorithm(packet, session)
+         
+          
          
     @staticmethod
     def handleRTCPSRPacket(packet : RTPPacket, session: RTPSession):

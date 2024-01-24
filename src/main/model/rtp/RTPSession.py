@@ -8,7 +8,9 @@ DELETION_DELAY : float = 5.0
 
 # After 5 RTCP Intervals without message from a
 # source, it is recommanded to mark it inactive
-INACTIVITY_INTERVAL_COUNT : int = 5
+RECEIVER_INACTIVITY_INTERVAL_COUNT : int = 5
+
+SENDER_INACTIVITY_INTERVAL_COUNT : int = 2
 
 class RTPSession:
     
@@ -64,9 +66,16 @@ class RTPSession:
     def updateInactiveParticipants(self):
         
         # Check if we have to mark members inactive
-        for member in self.sessionMembers:
-            if self.inactiveTracker[member] < self.latestRTCPTimer.sort()[0]:
-                self.setInactive(member)
+        if len(self.latestRTCPTimer) >= RECEIVER_INACTIVITY_INTERVAL_COUNT:
+            for member in self.sessionMembers:
+                if self.inactiveTracker[member] < self.latestRTCPTimer.sort()[0]:
+                    self.setInactive(member)
+            
+        # Check if we have to remove senders
+        if len(self.latestRTCPTimer) >= SENDER_INACTIVITY_INTERVAL_COUNT:
+            for sender in self.senders:
+                if self.inactiveTracker[sender] < self.latestRTCPTimer.sort(reverse=True)[1]:
+                    self.senders.pop(sender, None)
                 
     def setInactive(self, ssrc: int):
         
@@ -81,9 +90,11 @@ class RTPSession:
     def refreshLatestRTCPTimers(self):
         
         self.latestRTCPTimer.append(datetime.datetime.utcnow())
-        if len(self.latestRTCPTimer) > INACTIVITY_INTERVAL_COUNT:
+        if len(self.latestRTCPTimer) > RECEIVER_INACTIVITY_INTERVAL_COUNT:
             oldestTimer = self.latestRTCPTimer.sort()[0]
             self.latestRTCPTimer.remove(oldestTimer)
+        
+        
             
     def addToSender(self, ssrc: int):
         
