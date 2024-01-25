@@ -1,4 +1,4 @@
-class RTCPRHeader:
+class RTCPHeader:
     
     marker: bool = True
     payloadType: int

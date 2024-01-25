@@ -17,32 +17,37 @@ class RTCPPacketHandler:
         # Handle inactivity exit
         RTCPPacketHandler.handleInactivity(packet.header.fixedHeader.ssrc, session)
         
-        if packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_BYE.value :
+        # All rtcp packets have this flag
+        if packet.header.fixedHeader.marker:
+        
+            if packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_BYE.value :
             
-            RTCPPacketHandler.handleRTCPBYEPacket(packet, session)
+                RTCPPacketHandler.handleRTCPBYEPacket(packet, session)
             
-        else:
-            # Handle non BYE events
+            else:
+                # Handle non BYE events
             
-            # session participants handling
-            RTCPPacketHandler.tryAddingParticipantsToSession(packet, session)
-                        
-            # Treat according to message type
-            if packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_SR.value and packet.header.fixedHeader.marker:
-                    
-                RTCPPacketHandler.handleRTCPSRPacket(packet, session)
+                # session participants handling
+                RTCPPacketHandler.tryAddingParticipantsToSession(packet, session)
+            
+           
                 
-            elif packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_RR.value and packet.header.fixedHeader.marker:
+                # Treat according to message type
+                if packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_SR.value:
                     
-                RTCPPacketHandler.handleRTCPRRPacket(packet, session)
+                    RTCPPacketHandler.handleRTCPSRPacket(packet, session)
                 
-            elif packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_SDES.value :
+                elif packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_RR.value:
                     
-                RTCPPacketHandler.handleRTCPSDESPacket(packet, session)
+                    RTCPPacketHandler.handleRTCPRRPacket(packet, session)
                 
-            elif packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_APP.value :
+                elif packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_SDES.value :
                     
-                RTCPPacketHandler.handleRTCPAPPPacket(packet, session)                
+                    RTCPPacketHandler.handleRTCPSDESPacket(packet, session)
+                
+                elif packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_APP.value :
+                    
+                    RTCPPacketHandler.handleRTCPAPPPacket(packet, session)                
 
                 
     @staticmethod

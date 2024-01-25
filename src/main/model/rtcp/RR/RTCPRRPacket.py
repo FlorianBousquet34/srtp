@@ -1,11 +1,11 @@
-from main.model.rtcp.r.RTCPRHeader import RTCPRHeader
+from main.model.rtcp.RTCPHeader import RTCPHeader
 from main.model.rtcp.r.RTCPReportBlock import RTCPReportBlock
 
 
 class RTCPRRPacket:
     
     #Header part
-    header: RTCPRHeader
+    header: RTCPHeader
     
     #List of report blocks
     reports: list[RTCPReportBlock]

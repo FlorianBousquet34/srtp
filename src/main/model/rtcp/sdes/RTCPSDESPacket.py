@@ -1,9 +1,9 @@
-from main.model.rtcp.r.RTCPRHeader import RTCPRHeader
+from main.model.rtcp.RTCPHeader import RTCPHeader
 from main.model.rtcp.sdes.RTCPSDESChunk import RTCPSDEChunk
 
 
 class RTCPSDESPacket:
     
-    header : RTCPRHeader
+    header : RTCPHeader
     
     chuncks : list[RTCPSDEChunk]
