@@ -1,5 +1,5 @@
-from main.model.rtcp.R.RTCPRHeader import RTCPRHeader
-from main.model.rtcp.R.RTCPReportBlock import RTCPReportBlock
+from main.model.rtcp.r.RTCPRHeader import RTCPRHeader
+from main.model.rtcp.r.RTCPReportBlock import RTCPReportBlock
 
 
 class RTCPRRPacket:

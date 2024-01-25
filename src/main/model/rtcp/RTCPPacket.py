@@ -1,5 +1,5 @@
-from main.model.rtcp.RR.RTCPRRPacket import RTCPRRPacket
-from main.model.rtcp.SR.RTCPSRPacket import RTCPSRPacket
+from main.model.rtcp.rr.RTCPRRPacket import RTCPRRPacket
+from main.model.rtcp.sr.RTCPSRPacket import RTCPSRPacket
 
 
 class RTCPPacket:
