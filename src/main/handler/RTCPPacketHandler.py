@@ -1,6 +1,7 @@
 
 from datetime import datetime
 from main.handler.RTCPReverseAlgorithm import RTCPReverseAlgorithm
+from main.model.rtcp.RTCPPacket import RTCPPacket
 from main.model.rtp.RTPPacket import RTPPacket
 from main.model.rtp.RTPSession import RTPSession
 from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
@@ -9,7 +10,9 @@ from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
 class RTCPPacketHandler:
     
     @staticmethod
-    def handleRTPPacket(packet : RTPPacket, session: RTPSession):
+    def handleRTCPPacket(packet : RTCPPacket, session: RTPSession):
+        
+        # TODO Maj
         
         # Handle inactivity exit
         RTCPPacketHandler.handleInactivity(packet.header.fixedHeader.ssrc, session)
@@ -25,11 +28,11 @@ class RTCPPacketHandler:
             RTCPPacketHandler.tryAddingParticipantsToSession(packet, session)
                         
             # Treat according to message type
-            if packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_SR.value :
+            if packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_SR.value and packet.header.fixedHeader.marker:
                     
                 RTCPPacketHandler.handleRTCPSRPacket(packet, session)
                 
-            elif packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_RR.value :
+            elif packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_RR.value and packet.header.fixedHeader.marker:
                     
                 RTCPPacketHandler.handleRTCPRRPacket(packet, session)
                 
@@ -39,11 +42,8 @@ class RTCPPacketHandler:
                 
             elif packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_APP.value :
                     
-                RTCPPacketHandler.handleRTCPAPPPacket(packet, session)
-                
-            else:
-                
-                RTCPPacketHandler.handleCustomRTPPacket(packet, session)
+                RTCPPacketHandler.handleRTCPAPPPacket(packet, session)                
+
                 
     @staticmethod
     def handleInactivity(ssrc : int, session : RTPSession):
@@ -54,10 +54,12 @@ class RTCPPacketHandler:
             session.addToSession(ssrc)
                 
     @staticmethod  
-    def handleCustomRTPPacket(packet : RTPPacket, session: RTPSession):
+    def handleNonRTCPPacket(packet : RTPPacket, session: RTPSession):
         
         # Override this method to treat applicative packets
         
+        # Handle inactivity exit
+        RTCPPacketHandler.handleInactivity(packet.header.fixedHeader.ssrc, session)
         ssrc = packet.header.fixedHeader.ssrc
         session.addToSender(ssrc)
         

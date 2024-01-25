@@ -1,8 +1,9 @@
-from main.model.rtp.RTPPacket import RTPPacket
+
+from main.model.rtcp.RTCPPacket import RTCPPacket
 
 
 class RTCPCompoundPacket:
     
     rawData: bytearray
     
-    packets : list[RTPPacket] = []
+    packets : list[RTCPPacket] = []
