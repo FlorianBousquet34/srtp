@@ -1,18 +1,18 @@
-from main.model.rtcp.SR.RTCPSRHeader import RTCPSRHeader
-from main.model.rtcp.SR.RTCPSRReportBlock import RTCPSRReportBlock
+from main.model.rtcp.R.RTCPRHeader import RTCPRHeader
+from main.model.rtcp.R.RTCPReportBlock import RTCPReportBlock
 from main.model.rtcp.SR.RTCPSRSenderInfo import RTCPSRSenderInfo
 
 
 class RTCPSRPacket:
     
     #Header part
-    header: RTCPSRHeader
+    header: RTCPRHeader
     
     #First Mandatory part of SR Packet
     senderInfo: RTCPSRSenderInfo
     
     #List of sender report blocks
-    reports: list[RTCPSRReportBlock]
+    reports: list[RTCPReportBlock]
     
     # A profile-specific extension may be added
     

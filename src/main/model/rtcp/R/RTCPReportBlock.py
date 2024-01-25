@@ -1,7 +1,7 @@
 import datetime
 
 
-class RTCPSRReportBlock:
+class RTCPReportBlock:
     
     # The The SSRC identifier of the source to which the information in this
     # reception report block pertains 32 bits

@@ -1,7 +1,7 @@
 from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
 
 
-class RTCPSRHeader:
+class RTCPRHeader:
     
     marker: bool = True
     payloadType: int = RTPPayloadTypeEnum.RTCP_SR.value
