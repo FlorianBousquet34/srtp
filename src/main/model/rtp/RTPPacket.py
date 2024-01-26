@@ -10,4 +10,4 @@ class RTPPacket:
     # The RTP Payload
     payload: RTPPayload
     
-    rawPacket: bytearray
+    raw_packet: bytearray

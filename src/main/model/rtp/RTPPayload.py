@@ -1,10 +1,10 @@
 class RTPPayload:
     
     # The size of the padding
-    padCount: int
+    pad_count: int
     
     # The padded payload
-    rawPayload: bytearray
+    raw_payload: bytearray
     
     # Payload message without paddin
     payload: str

@@ -8,4 +8,4 @@ class RTCPSDEChunk:
     source : int
     
     # List of SDES items
-    sdesItems : list[RTCPSDESItem]
+    sdes_items : list[RTCPSDESItem]

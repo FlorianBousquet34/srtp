@@ -12,25 +12,25 @@ class RTCPParticipantState :
     
     def __init__(self, session: RTPSession, participant: RTPParticipant) -> None:
         self.session = session
-        self.targetBandwidth = session.profile.sessionBandwidth * session.profile.controlBandwithFraction
-        self.averagePacketSize = session.profile.estimatedPacketSize
+        self.target_bandwidth = session.profile.session_bandwidth * session.profile.control_bandwith_fraction
+        self.average_packet_size = session.profile.estimatedPacketSize
         self.participant = participant
-        self.participantJoinTime = datetime.utcnow()
+        self.participantjoin_time = datetime.utcnow()
         RTCPScheduler.scheduleNextRTCPMessage(self)
         
     def refresh(self):
         
         # Refresh the state : tc, sender, members,
         
-        self.tc = (datetime.utcnow() - self.participantJoinTime).total_seconds()
-        self.members = len(self.session.sessionMembers)
+        self.tc = (datetime.utcnow() - self.participant_join_time).total_seconds()
+        self.members = len(self.session.session_members)
         self.senders = len(self.session.senders)
     
     # The participant
     participant: RTPParticipant
     
     # The Time the participant joined the session
-    participantJoinTime : datetime
+    participant_join_time : datetime
     
     # The RTP Session of the participant
     session: RTPSession
@@ -58,18 +58,18 @@ class RTCPParticipantState :
     # The targeted bandwidth in octet per seconds
     # Should be smaller the the intended bandwith of
     # the session defined at session start
-    targetBandwidth: float
+    target_bandwidth: float
     
     # The application has send a rtcp packet between
     # now and the 2nd last rtcp packet
-    weSend: bool = False
+    we_send: bool = False
     
     # The average size of packets received by this participant
     # in octets
-    averagePacketSize: float
+    average_packet_size: float
     
     # The particpant has not send packets yet
     initial: bool = True
     
     # The RTCP Job shceduler
-    rtcpScheduler: AsyncIOScheduler
+    rtcp_scheduler: AsyncIOScheduler

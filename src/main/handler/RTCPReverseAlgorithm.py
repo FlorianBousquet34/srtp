@@ -5,7 +5,7 @@ from main.model.rtp.RTPSession import RTPSession
 class RTCPReverseAlgorithm:
     
     @staticmethod
-    def applyRTCPReverseAlgorithm(packet: RTPPacket, session: RTPSession):
+    def apply_rtcp_reverse_algorithm(packet: RTPPacket, session: RTPSession):
         
         # TODO reverse reconsideration algorithm
         

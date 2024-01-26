@@ -5,15 +5,17 @@ from main.model.rtp.RTPSession import RTPSession
 
 class RTPSender:
     
-    def sendPacket(packet: RTPPacket | RTCPCompoundPacket, session: RTPSession):
+    @staticmethod
+    def send_packet(packet: RTPPacket | RTCPCompoundPacket, session: RTPSession):
         
         # TODO Send packet
-        
+        if isinstance(packet, RTPPacket):
+            ssrc = packet.header.fixed_header.ssrc
+        else:
+            ssrc = packet.packets[0].packet.header.ssrc
         # Add ourselves to senders and activate we_send flag
-        if session.senders.get(packet.header.fixedHeader.ssrc, None) is None:
-            session.senders[packet.header.fixedHeader.ssrc] = session.participant
+        if session.senders.get(ssrc, None) is None:
+            session.senders[ssrc] = session.participant
         
-        if not session.participant.participantState.weSend:
-            session.participant.participantState.weSend = True
-        
-        pass
+        if not session.participant.participant_state.we_send:
+            session.participant.participant_state.we_send = True

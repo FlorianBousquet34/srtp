@@ -5,4 +5,4 @@ from main.model.srtp.SRTPCryptoContext import SRTPCryptoContext
 class SRTPSession(RTPSession):
     
     # The Cryptographic context of the SRTP Session
-    cryptoContext: SRTPCryptoContext
+    crypto_context: SRTPCryptoContext

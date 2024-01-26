@@ -1,7 +1,7 @@
 class RTCPHeader:
     
     marker: bool = True
-    payloadType: int
+    payload_type: int
     # V on 2 bits
     version: str
     
@@ -10,7 +10,7 @@ class RTCPHeader:
     
     # Block number on 5 bits
     # Report blocks or SDES chuncks count
-    blockCount: int 
+    block_count: int 
     
     #The length of this RTCP packet in 32-bit words minus one,
     # including the header and any padding

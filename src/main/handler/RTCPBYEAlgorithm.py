@@ -5,7 +5,7 @@ SESSION_MEMBERS_THRESHOLD : int = 50
 class RTCPBYEAlgorithm:
     
     @staticmethod
-    def executeBYEAlgorithm(session: RTPSession):
+    def execute_bye_algorithm(session: RTPSession):
         
         # TODO Transmitting a BYE Packet
         # https://datatracker.ietf.org/doc/html/rfc3550#section-6.3.7

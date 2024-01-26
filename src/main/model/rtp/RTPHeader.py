@@ -5,13 +5,13 @@ from main.model.rtp.RTPHeaderExtension import RTPHeaderExtension
 class RTPHeader:
     
     # The fixed length part of the header
-    fixedHeader: RTPFixedHeader
+    fixed_header: RTPFixedHeader
     
     # Enable the header extension implementations
-    headerExtension: RTPHeaderExtension
+    header_extension: RTPHeaderExtension
     
     # The list of constribution source (CSRC)
     # from 0 up to 15 items of 32 bits identifier
-    csrcList: list[int] = []
+    csrc_list: list[int] = []
     
-    rawHeader : bytearray
+    raw_header : bytearray

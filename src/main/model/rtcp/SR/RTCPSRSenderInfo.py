@@ -1,15 +1,15 @@
 class RTCPSRSenderInfo:
     
     #NTP timestamp : Wallclock of 64 bits
-    ntpTimestamp: int
+    ntp_timestamp: int
     
     #RTP Timestamp 32 bits
-    rtpTimestamp: int
+    rtp_timestamp: int
     
     # 32 bits 
     # packet count sent since begining of transmission
-    senderPacketCount : int
+    sender_packet_count : int
     
     # 32 bits 
     # packet size sent since beginning of transmission
-    senderOctetCount : int
+    sender_octet_count : int

@@ -9,7 +9,7 @@ class RTCPSRPacket:
     header: RTCPHeader
     
     #First Mandatory part of SR Packet
-    senderInfo: RTCPSRSenderInfo
+    sender_info: RTCPSRSenderInfo
     
     #List of sender report blocks
     reports: list[RTCPReportBlock]

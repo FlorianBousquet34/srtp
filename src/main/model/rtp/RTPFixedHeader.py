@@ -12,7 +12,7 @@ class RTPFixedHeader:
     extension: bool
     
     # CC number of CRSC on 4 bits
-    csrcNumber: int 
+    csrc_number: int 
     
     # M marqueur on 1 bit
     marker: bool
@@ -20,10 +20,10 @@ class RTPFixedHeader:
     # PT on 7 bits
     # values can be provided with the RTPPaylaodTypeEnum
     # or the SRTPPayloadTypeEnum
-    payloadType: int
+    payload_type: int
     
     # SEQNUM on 16 bits
-    sequenceNumber: int
+    sequence_number: int
     
     # datetime on 32 bits
     timestamp: datetime

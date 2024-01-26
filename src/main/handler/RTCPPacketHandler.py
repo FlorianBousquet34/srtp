@@ -10,115 +10,125 @@ from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
 class RTCPPacketHandler:
     
     @staticmethod
-    def handleRTCPPacket(packet : RTCPPacket, session: RTPSession):
+    def handle_rtcp_packet(packet : RTCPPacket, session: RTPSession):
         
         # TODO Maj
         
         # Handle inactivity exit
-        RTCPPacketHandler.handleInactivity(packet.header.fixedHeader.ssrc, session)
+        RTCPPacketHandler.handle_inactivity(packet.packet.header.ssrc, session)
         
         # All rtcp packets have this flag
-        if packet.header.fixedHeader.marker:
+        if packet.packet.header.marker:
         
-            if packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_BYE.value :
+            if packet.packet.header.payload_type == RTPPayloadTypeEnum.RTCP_BYE.value :
             
-                RTCPPacketHandler.handleRTCPBYEPacket(packet, session)
+                RTCPPacketHandler.handle_rtcp_bye_packet(packet, session)
             
             else:
                 # Handle non BYE events
             
                 # session participants handling
-                RTCPPacketHandler.tryAddingParticipantsToSession(packet, session)
+                RTCPPacketHandler.try_adding_participants_to_session(packet.packet.header.ssrc, session)
             
-           
                 
                 # Treat according to message type
-                if packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_SR.value:
+                if packet.packet.header.payload_type == RTPPayloadTypeEnum.RTCP_SR.value:
                     
-                    RTCPPacketHandler.handleRTCPSRPacket(packet, session)
+                    RTCPPacketHandler.handle_rtcp_sr_packet(packet, session)
                 
-                elif packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_RR.value:
+                elif packet.packet.header.payload_type == RTPPayloadTypeEnum.RTCP_RR.value:
                     
-                    RTCPPacketHandler.handleRTCPRRPacket(packet, session)
+                    RTCPPacketHandler.handle_rtcp_rr_packet(packet, session)
                 
-                elif packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_SDES.value :
+                elif packet.packet.header.payload_type == RTPPayloadTypeEnum.RTCP_SDES.value :
                     
-                    RTCPPacketHandler.handleRTCPSDESPacket(packet, session)
+                    RTCPPacketHandler.handle_rtcp_sdes_packet(packet, session)
                 
-                elif packet.header.fixedHeader.payloadType == RTPPayloadTypeEnum.RTCP_APP.value :
+                elif packet.packet.header.payload_type == RTPPayloadTypeEnum.RTCP_APP.value :
                     
-                    RTCPPacketHandler.handleRTCPAPPPacket(packet, session)                
+                    RTCPPacketHandler.handle_rtcp_app_packet(packet, session)                
 
                 
     @staticmethod
-    def handleInactivity(ssrc : int, session : RTPSession):
+    def handle_inactivity(ssrc : int, session : RTPSession):
 
-        session.inactiveTracker[ssrc] = datetime.utcnow()
-        if session.inactiveMembers(ssrc, None) is not None :
-            session.inactiveMembers.pop(ssrc)
-            session.addToSession(ssrc)
+        session.inactive_tracker[ssrc] = datetime.utcnow()
+        if session.inactive_members(ssrc, None) is not None :
+            session.inactive_members.pop(ssrc)
+            session.add_to_session(ssrc)
                 
     @staticmethod  
-    def handleNonRTCPPacket(packet : RTPPacket, session: RTPSession):
+    def handle_non_rtcp_packet(packet : RTPPacket, session: RTPSession):
         
-        # Override this method to treat applicative packets
-        
+        # session participants handling
+        RTCPPacketHandler.try_adding_participants_to_session(packet.packet.header.ssrc, session)
+    
         # Handle inactivity exit
-        RTCPPacketHandler.handleInactivity(packet.header.fixedHeader.ssrc, session)
-        ssrc = packet.header.fixedHeader.ssrc
-        session.addToSender(ssrc)
+        RTCPPacketHandler.handle_inactivity(packet.header.fixed_header.ssrc, session)
+        
+        ssrc = packet.header.fixed_header.ssrc
+        session.add_to_sender(ssrc)
+
+        RTCPPacketHandler.execute_packet_treatment(packet, session)
+
+    @staticmethod
+    def execute_packet_treatment(packet : RTPPacket, session: RTPSession):
+
+        # Overide this method do do applicative packet treatment
+
+        pass
         
             
             
     @staticmethod
-    def handleRTCPBYEPacket(packet : RTPPacket, session: RTPSession):
+    def handle_rtcp_bye_packet(packet : RTCPPacket, session: RTPSession):
         
          # Handle a BYE Packet received from another user
          # Remove the user from session members table
          
-         session.markBYEEvent(packet.header.fixedHeader.ssrc)
+         session.mark_bye_event(packet.packet.header.ssrc)
          
-         RTCPReverseAlgorithm.applyRTCPReverseAlgorithm(packet, session)
+         RTCPReverseAlgorithm.apply_rtcp_reverse_algorithm(packet, session)
          
           
          
     @staticmethod
-    def handleRTCPSRPacket(packet : RTPPacket, session: RTPSession):
+    def handle_rtcp_sr_packet(packet : RTCPPacket, session: RTPSession):
         
         # TODO handleRTCPSRPacket
         # handle a RTCP Sender Report packet
         pass
     
     @staticmethod
-    def handleRTCPRRPacket(packet : RTPPacket, session: RTPSession):
+    def handle_rtcp_rr_packet(packet : RTCPPacket, session: RTPSession):
         
         # TODO handleRTCPRRPacket
         # handle a RTCP Receiver Report packet
         pass
     
     @staticmethod
-    def handleRTCPSDESPacket(packet : RTPPacket, session: RTPSession):
+    def handle_rtcp_sdes_packet(packet : RTCPPacket, session: RTPSession):
         
         # TODO handleRTCPSDESPacket
         # handle a RTCP SDES packet
         pass
     
     @staticmethod
-    def handleRTCPAPPPacket(packet : RTPPacket, session: RTPSession):
+    def handle_rtcp_app_packet(packet : RTCPPacket, session: RTPSession):
         
         # TODO handleRTCPAPPPacket
         # handle a RTCP APP packet
         pass
     
     @staticmethod
-    def tryAddingParticipantsToSession(packet: RTPPacket, session: RTPSession):
+    def try_adding_participants_to_session(ssrc: int, session: RTPSession, csrc_list : list[int] | None = None):
         
         # Add ssrc and csrc to session members
         
-        if session.sessionMembers.get(packet.header.fixedHeader.ssrc, None) is None:
+        if session.session_members.get(ssrc, None) is None:
                 # Validation of the new participant
-                validated = session.participantValidation(packet.header.fixedHeader.ssrc)
-                if validated:
+                validated = session.participant_validation(ssrc)
+                if validated and csrc_list is not None:
                     # If Validated we add the csrc
-                    for csrc in packet.header.csrcList :
-                        session.participantValidation(csrc)
+                    for csrc in csrc_list :
+                        session.participant_validation(csrc)

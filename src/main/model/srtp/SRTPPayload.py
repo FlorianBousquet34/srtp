@@ -4,7 +4,7 @@ from main.model.rtp.RTPPayload import RTPPayload
 class SRTPPaylaod:
     
     # The original encrypted paylaod
-    encryptedPayload: bytearray
+    encrypted_payload: bytearray
     
     # The decypted payload
-    decryptedPayload: RTPPayload
+    decrypted_payload: RTPPayload
