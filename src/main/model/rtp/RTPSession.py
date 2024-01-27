@@ -20,7 +20,7 @@ class RTPSession:
         self.leave_scheduler.start()
     
     def participant_validation(self, ssrc) -> bool:
-        validated = True
+        validated : bool = True
         
         # TODO participant validation is based on SDES RTCP Packet
         # containing a CNAME received from the source or multiple
@@ -57,10 +57,11 @@ class RTPSession:
         self.inactive_tracker.pop(ssrc, None)
         self.senders.pop(ssrc, None)
     
-    def add_to_session(self, ssrc : int):
+    def add_to_session(self, ssrc : int, participant : RTPParticipant | None = None):
         
         # Add the ssrc to the session members
-        self.session_members[ssrc] = RTPParticipant(ssrc)
+        if participant is None:
+            self.session_members[ssrc] = RTPParticipant(ssrc)
         self.inactive_tracker[ssrc] = datetime.datetime.utcnow()
         self.session_members[ssrc].is_validated = True
     

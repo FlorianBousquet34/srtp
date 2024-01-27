@@ -1,6 +1,3 @@
-import datetime
-
-
 class RTCPReportBlock:
     
     # The The SSRC identifier of the source to which the information in this
@@ -33,10 +30,10 @@ class RTCPReportBlock:
     
     # The middle 32 bits out of 64 in the NTP timestamp received in last
     # SR from source ssrc
-    last_sr_timestamp: datetime.datetime
+    last_sr_timestamp: int
     
     # Delay since source ssrc last SR report
     # 0 if none received
     # 32 bits 
     # 1 bit => 1/65536 sec
-    delay_last_sr: datetime.timedelta
+    delay_last_sr: int

@@ -14,4 +14,7 @@ class RTPHeader:
     # from 0 up to 15 items of 32 bits identifier
     csrc_list: list[int] = []
     
+    # Padding octets
+    padding_octets: int
+    
     raw_header : bytearray

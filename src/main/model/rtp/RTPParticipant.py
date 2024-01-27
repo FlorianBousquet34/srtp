@@ -12,7 +12,7 @@ class RTPParticipant:
         # Called when the current participant is joining a session
         
         self.participant_state = RTCPParticipantState(session, self)
-        session.add_to_session(self.ssrc)
+        session.add_to_session(self.ssrc, self)
         session.participant = self
     
     # Describes a session participant

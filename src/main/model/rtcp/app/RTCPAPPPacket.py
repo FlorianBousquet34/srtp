@@ -12,4 +12,4 @@ class RTCPAPPPacket:
     
     # application relative date
     # variable length multiple of 32 bits
-    date : bytearray
+    data : bytearray

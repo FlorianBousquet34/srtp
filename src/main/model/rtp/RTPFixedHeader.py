@@ -1,5 +1,3 @@
-from datetime import datetime
-
 class RTPFixedHeader:
     
     # V on 2 bits
@@ -25,8 +23,8 @@ class RTPFixedHeader:
     # SEQNUM on 16 bits
     sequence_number: int
     
-    # datetime on 32 bits
-    timestamp: datetime
+    # timestamp on 32 bits
+    timestamp: int
     
     # SSRC synchronized source on 32 bits
     ssrc: int 

@@ -1,4 +1,4 @@
-from main.model.rtcp.sdes.RTCPSDESItem import RTCPSDESItem
+from main.model.rtcp.sdes.items.RTCPGenericItem import RTCPGenericItem
 
 
 class RTCPSDEChunk:
@@ -8,4 +8,4 @@ class RTCPSDEChunk:
     source : int
     
     # List of SDES items
-    sdes_items : list[RTCPSDESItem]
+    sdes_items : list[RTCPGenericItem]
