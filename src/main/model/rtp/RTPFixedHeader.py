@@ -1,7 +1,7 @@
 class RTPFixedHeader:
     
     # V on 2 bits
-    version: str
+    version: int = 2
     
     # P padding on 1 bit
     padding: bool

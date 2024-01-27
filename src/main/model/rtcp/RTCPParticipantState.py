@@ -1,8 +1,12 @@
 from datetime import datetime
+from threading import Thread
 from main.scheduler.RTCPScheduler import RTCPScheduler
 from main.model.rtp.RTPParticipant import RTPParticipant
 from main.model.rtp.RTPSession import RTPSession
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from main.threading.UDPHandlingThread import UDPHandlingThread
+
+from main.threading.UDPListenningThread import UDPListenningThread
 
 class RTCPParticipantState :
     
@@ -13,10 +17,11 @@ class RTCPParticipantState :
     def __init__(self, session: RTPSession, participant: RTPParticipant) -> None:
         self.session = session
         self.target_bandwidth = session.profile.session_bandwidth * session.profile.control_bandwith_fraction
-        self.average_packet_size = session.profile.estimatedPacketSize
+        self.average_packet_size = session.profile.estimated_packet_size
         self.participant = participant
         self.participantjoin_time = datetime.utcnow()
-        RTCPScheduler.scheduleNextRTCPMessage(self)
+        self.listenning_thread = UDPListenningThread(session)
+        RTCPScheduler.schedule_next_rtcp_message(self)
         
     def refresh(self):
         
@@ -73,3 +78,9 @@ class RTCPParticipantState :
     
     # The RTCP Job shceduler
     rtcp_scheduler: AsyncIOScheduler
+    
+    # A Listening thread
+    listenning_thread: UDPListenningThread
+    
+    # Handling thread
+    handling_thread: UDPHandlingThread

@@ -135,10 +135,10 @@ class RTCPParser:
             
             if len(raw_payload) > payload_ssrc_count * SSRC_SIZE:
                 
-                length = int(raw_payload[payload_ssrc_count * SSRC_SIZE: payload_ssrc_count * SSRC_SIZE + 1])
-                reason = str(raw_payload[payload_ssrc_count * SSRC_SIZE + 1: payload_ssrc_count * SSRC_SIZE + 1 + length])
-                packet.reason = RTCPBYEReason(length, reason)
-                paylaod_size = payload_ssrc_count * SSRC_SIZE + 1 + length
+                packet.reason = RTCPBYEReason()
+                packet.reason.length = int(raw_payload[payload_ssrc_count * SSRC_SIZE: payload_ssrc_count * SSRC_SIZE + 1])
+                packet.reason.reason = str(raw_payload[payload_ssrc_count * SSRC_SIZE + 1: payload_ssrc_count * SSRC_SIZE + 1 + packet.reason.length])
+                paylaod_size = payload_ssrc_count * SSRC_SIZE + 1 + packet.reason.length
         
         else:
             

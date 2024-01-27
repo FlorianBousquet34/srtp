@@ -1,4 +1,9 @@
+from main.model.rtcp.RTCPHeader import RTCPHeader
+from main.model.rtcp.bye.RTCPBYEPacket import RTCPBYEPacket
+from main.model.rtcp.bye.RTCPBYEReason import RTCPBYEReason
 from main.model.rtp.RTPSession import RTPSession
+from main.sender.RTPSender import RTPSender
+from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
 
 SESSION_MEMBERS_THRESHOLD : int = 50
 
@@ -32,4 +37,24 @@ class RTCPBYEAlgorithm:
         # Transmission of the BYE packet then follows the rules for
         # transmitting a regular RTCP packet, as above.
         
-        pass
+        packet = RTCPBYEAlgorithm.create_rtcp_bye_packet(session)
+        # TODO to_bytes functions
+        RTPSender.send_packet(packet.to_bytes(), session)
+        
+    @staticmethod
+    def create_rtcp_bye_packet(session: RTPSession, reason: str | None = None) -> RTCPBYEPacket:
+        # length will be updated when calling the to_bytes data
+        packet = RTCPBYEPacket()
+        
+        packet.header = RTCPHeader()
+        packet.header.payload_type = RTPPayloadTypeEnum.RTCP_BYE.value
+        packet.header.block_count = 1
+        packet.header.ssrc = session.participant.ssrc
+        packet.sources = [packet.header.ssrc]
+        
+        if reason is not None:
+
+            packet.reason = RTCPBYEReason()
+            packet.reason.reason = reason
+            
+        return packet

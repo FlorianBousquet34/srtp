@@ -8,10 +8,9 @@ from main.parser.RTCPParser import RTCPParser
 from main.parser.RTPParser import RTPParser
 from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
 
+PACKET_AVG_CONTRIBUTION = 1.0 / 16.0
 
 class RTPListenner:
-    
-    # TODO Listen to UDP Packets
     
     @staticmethod
     def read_incoming_rtp_packet(data: bytearray, session: RTPSession):
@@ -27,6 +26,10 @@ class RTPListenner:
                     # it is a rtcp compound packet
                     packet = RTCPCompoundPacket(data)
                     RTCPParser.parse_rtcp_compound_packet(packet)
+                    
+                    # Updating avg rtcp packet size
+                    session.participant.participant_state.average_packet_size = PACKET_AVG_CONTRIBUTION * len(packet.raw_data) + (
+                        (1.0 - PACKET_AVG_CONTRIBUTION) *  session.participant.participant_state.average_packet_size)
                     
                     for rtcp_packet in packet.packets:
                         

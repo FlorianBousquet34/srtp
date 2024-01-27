@@ -2,10 +2,10 @@
 from datetime import datetime
 from main.handler.RTCPReverseAlgorithm import RTCPReverseAlgorithm
 from main.model.rtcp.RTCPPacket import RTCPPacket
+from main.model.rtcp.sdes.RTCPSDESPacket import RTCPSDESPacket
 from main.model.rtp.RTPPacket import RTPPacket
 from main.model.rtp.RTPSession import RTPSession
 from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
-
 
 class RTPPacketHandler:
     
@@ -106,11 +106,16 @@ class RTPPacketHandler:
         pass
     
     @staticmethod
-    def handle_rtcp_sdes_packet(packet : RTCPPacket, session: RTPSession):
+    def handle_rtcp_sdes_packet(packet : RTCPSDESPacket, session: RTPSession):
         
-        # TODO handleRTCPSDESPacket
         # handle a RTCP SDES packet
-        pass
+        for chunck in packet.chuncks:
+            
+            if session.sdes_info.get(packet.header.ssrc, None) is None:
+                session.sdes_info[packet.header.ssrc] = {}
+                
+            for sdes in chunck.sdes_items:
+                session.sdes_info[packet.header.ssrc][sdes.sdes_key] = sdes.sdes_value
     
     @staticmethod
     def handle_rtcp_app_packet(packet : RTCPPacket, session: RTPSession):
@@ -130,4 +135,5 @@ class RTPPacketHandler:
                 if validated and csrc_list is not None:
                     # If Validated we add the csrc
                     for csrc in csrc_list :
-                        session.participant_validation(csrc)
+                        if session.session_members.get(csrc, None) is None:
+                            session.participant_validation(csrc)

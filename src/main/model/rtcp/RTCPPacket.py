@@ -8,3 +8,5 @@ from main.model.rtcp.sr.RTCPSRPacket import RTCPSRPacket
 class RTCPPacket:
     
     packet: RTCPSRPacket | RTCPRRPacket | RTCPBYEPacket | RTCPSDESPacket | RTCPAPPPacket
+    
+    raw_data: bytearray

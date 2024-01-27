@@ -10,9 +10,9 @@ class RTPParser:
     @staticmethod
     def parse_rtp_packet(packet: RTPPacket):
         
-        packet.header, start_of_payload = RTPParser.parse_rtp_header(packet.raw_packet)
+        packet.header, start_of_payload = RTPParser.parse_rtp_header(packet.raw_data)
         
-        packet.payload = RTPParser.parse_rtp_payload(packet.raw_packet[start_of_payload:])
+        packet.payload = RTPParser.parse_rtp_payload(packet.raw_data[start_of_payload:])
         
     @staticmethod
     def parse_rtp_header(raw_data: bytearray) -> (RTPHeader, int):

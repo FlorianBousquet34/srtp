@@ -4,9 +4,9 @@ from main.model.rtp.RTPPayload import RTPPayload
 
 class RTPPacket:
     
-    def __init__(self, raw_packet: bytearray) -> None:
+    def __init__(self, raw_data: bytearray) -> None:
         
-        self.raw_packet = raw_packet
+        self.raw_data = raw_data
     
     # The RTP Header
     header: RTPHeader
@@ -14,4 +14,4 @@ class RTPPacket:
     # The RTP Payload
     payload: RTPPayload
     
-    raw_packet: bytearray
+    raw_data: bytearray

@@ -1,4 +1,6 @@
 import datetime
+from main.model.rtcp.sdes.items.RTCPGenericItem import RTCPGenericItem
+from main.model.rtcp.sdes.items.RTCPItemEnum import RTCPItemEnum
 from main.model.rtp.RTPParticipant import RTPParticipant
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -20,11 +22,11 @@ class RTPSession:
         self.leave_scheduler.start()
     
     def participant_validation(self, ssrc) -> bool:
-        validated : bool = True
         
-        # TODO participant validation is based on SDES RTCP Packet
-        # containing a CNAME received from the source or multiple
-        # RTP Packet received from the same ssrc
+        # Participant validation is based on SDES RTCP Packet containing a CNAME
+        # received from the source or multiple RTP Packet received from the same ssrc
+        validated = ( self.sdes_info.get(ssrc, None) is not None and 
+                        self.sdes_info[ssrc].get(RTCPItemEnum.CNAME.value, None) is not None )
         
         if validated :
             self.add_to_session(ssrc)
@@ -154,3 +156,6 @@ class RTPSession:
     
     # Senders in this session
     senders : dict[int, RTPParticipant] = {}
+    
+    # most recent sdes infos
+    sdes_info : dict[int, dict[int, RTCPGenericItem]]
