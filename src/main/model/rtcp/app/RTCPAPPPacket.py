@@ -1,7 +1,14 @@
 from main.model.rtcp.RTCPHeader import RTCPHeader
+from main.utils.transformer.PaddingUtils import PaddingUtils
 
 
 class RTCPAPPPacket:
+    
+    def to_bytes(self) -> bytearray:
+        
+        _, name_data, _ = PaddingUtils.pad_string(self.name)
+        
+        return self.header.to_bytes() + name_data + self.data
     
     # App packet is for experiment use when building new apps
     

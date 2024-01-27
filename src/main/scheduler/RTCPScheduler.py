@@ -21,4 +21,4 @@ class RTCPScheduler:
         if state.rtcp_scheduler.state == 0:
             state.rtcp_scheduler.start()
             
-        state.rtcp_scheduler.add_job(RTCPJobExecutor.execute_rtcp_jobs(state.session), "date", job_schedule_time)
+        state.rtcp_job = state.rtcp_scheduler.add_job(RTCPJobExecutor.execute_rtcp_jobs(state.session), "date", job_schedule_time)

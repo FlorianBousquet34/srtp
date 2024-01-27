@@ -1,5 +1,5 @@
 from datetime import datetime
-from threading import Thread
+from apscheduler.job import Job
 from main.scheduler.RTCPScheduler import RTCPScheduler
 from main.model.rtp.RTPParticipant import RTPParticipant
 from main.model.rtp.RTPSession import RTPSession
@@ -27,9 +27,14 @@ class RTCPParticipantState :
         
         # Refresh the state : tc, sender, members,
         
-        self.tc = (datetime.utcnow() - self.participant_join_time).total_seconds()
+        self.tc = self.get_tc()
         self.members = len(self.session.session_members)
         self.senders = len(self.session.senders)
+        
+    def get_tc(self):
+        
+        # get the real time relative to participant joinning session
+        return (datetime.utcnow() - self.participant_join_time).total_seconds()
     
     # The participant
     participant: RTPParticipant
@@ -42,11 +47,6 @@ class RTCPParticipantState :
     
     # The time of the last transmitted rtcp packet
     tp : float = 0
-    
-    # The current time
-    # The refresh method needs to be called before
-    # accessing this value
-    tc : float = 0
     
     # The time to send the next rtcp message
     tn : float
@@ -78,6 +78,12 @@ class RTCPParticipantState :
     
     # The RTCP Job shceduler
     rtcp_scheduler: AsyncIOScheduler
+    
+    # next BYE job (used to reschedule)
+    bye_job : Job
+    
+    # next rtcp job (used to reschedule or cancel)
+    rtcp_job : Job
     
     # A Listening thread
     listenning_thread: UDPListenningThread

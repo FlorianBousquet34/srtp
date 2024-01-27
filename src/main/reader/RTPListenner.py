@@ -18,10 +18,10 @@ class RTPListenner:
         if data is not None and len(data) >= 2 :
             
             # check that V=2
-            if int((data >> 1) & 0b11) == 2:
+            if data[0] >> 6 & 0b11 == 2:
                 
                 # it is rtp
-                if (data >> 9) & 1 != 0 and int((data >> 10) & 0b1111111) in RTPPayloadTypeEnum.__members__.values():
+                if (data[1] >> 7) & 1 != 0 and data & 0b1111111 in RTPPayloadTypeEnum.__members__.values():
                     
                     # it is a rtcp compound packet
                     packet = RTCPCompoundPacket(data)
@@ -44,7 +44,7 @@ class RTPListenner:
             else:
                 
                 # it is not rtp
-                raise TypeError("RTP Version Should be 2", data[0] / 64, " was received")
+                raise TypeError("RTP Version Should be 2", data[0] // 64, " was received")
             
         else:
             # packet size is too small

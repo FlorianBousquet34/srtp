@@ -159,3 +159,11 @@ class RTPSession:
     
     # most recent sdes infos
     sdes_info : dict[int, dict[int, RTCPGenericItem]]
+    
+    # Waiting to leave is a flag activated when the user wants to
+    # send a BYE packet but has to wait because there are more than
+    # 50 participants in the session
+    # !!! This flag modify the counting of members to counting BYE Packets
+    # received
+    # TODO implement this behaviour
+    waiting_to_leave_50 : bool = False

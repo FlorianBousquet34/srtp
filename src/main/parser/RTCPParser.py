@@ -68,15 +68,15 @@ class RTCPParser:
     def parse_rtcp_header(raw_header: bytearray) -> RTCPHeader:
         
         header = RTCPHeader()
-        header.version = int((raw_header >> 1) & 0b11)
+        header.version = (raw_header[0] >> 6) & 0b11
         
         if header.version == 2:
             
-            header.length = int(raw_header[2:4])
-            header.padding = (raw_header >> 3) & 1 != 1
-            header.block_count = int((raw_header >> 4 ) & 0b11111)
-            header.payload_type = int((raw_header >> 10) & 0b1111111)
-            header.ssrc = int(raw_header[4:4 + SSRC_SIZE])
+            header.length = int.from_bytes(raw_header[2:4])
+            header.padding = (raw_header[0] >> 5) & 1 != 1
+            header.block_count = raw_header[0] & 0b11111
+            header.payload_type = raw_header[1] >> 0 & 0b1111111
+            header.ssrc = int.from_bytes(raw_header[4:4 + SSRC_SIZE])
             
         else:
             raise ValueError("The RTCP Compound packed was not well formated, It must contain 4 octets blocks")
@@ -129,15 +129,15 @@ class RTCPParser:
                 
                 for source_num in range(payload_ssrc_count):
                     
-                    packet.sources[source_num + 1] = int(raw_payload[source_num * SSRC_SIZE: (source_num + 1) * SSRC_SIZE])
+                    packet.sources[source_num + 1] = int.from_bytes(raw_payload[source_num * SSRC_SIZE: (source_num + 1) * SSRC_SIZE])
                     
             paylaod_size = payload_ssrc_count * SSRC_SIZE
             
             if len(raw_payload) > payload_ssrc_count * SSRC_SIZE:
                 
                 packet.reason = RTCPBYEReason()
-                packet.reason.length = int(raw_payload[payload_ssrc_count * SSRC_SIZE: payload_ssrc_count * SSRC_SIZE + 1])
-                packet.reason.reason = str(raw_payload[payload_ssrc_count * SSRC_SIZE + 1: payload_ssrc_count * SSRC_SIZE + 1 + packet.reason.length])
+                packet.reason.length = int.from_bytes(raw_payload[payload_ssrc_count * SSRC_SIZE: payload_ssrc_count * SSRC_SIZE + 1])
+                packet.reason.reason = raw_payload[payload_ssrc_count * SSRC_SIZE + 1: payload_ssrc_count * SSRC_SIZE + 1 + packet.reason.length].decode()
                 paylaod_size = payload_ssrc_count * SSRC_SIZE + 1 + packet.reason.length
         
         else:
@@ -155,7 +155,7 @@ class RTCPParser:
         
         if len(raw_payload) >= 4:
             
-            packet.name = str(raw_payload[0:4])
+            packet.name = raw_payload[0:4].decode()
             packet.data, payload_size = RTCPParser.parse_rtcp_app_data(raw_payload)
             
         else:
@@ -179,7 +179,7 @@ class RTCPParser:
         #The ssrc of the first chunck is in header.ssrc for generic purpose
         packet = RTCPSDESPacket()
         packet.chuncks = [None] * header.block_count
-        full_raw_payload = int.to_bytes(header.ssrc) + raw_payload
+        full_raw_payload = header.ssrc.to_bytes(SSRC_SIZE) + raw_payload
         start_of_chunck = 0
         
         for chunck_num in range(header.block_count):
@@ -187,7 +187,7 @@ class RTCPParser:
             if len(full_raw_payload) >= start_of_chunck + SSRC_SIZE:
                 
                 chunck = RTCPSDEChunk()
-                chunck.source = int(full_raw_payload[start_of_chunck: start_of_chunck + SSRC_SIZE])
+                chunck.source = int.from_bytes(full_raw_payload[start_of_chunck: start_of_chunck + SSRC_SIZE])
                 chunck.sdes_items = []
                 start_of_item = start_of_chunck + SSRC_SIZE
                 next_item_type = full_raw_payload[start_of_item]
@@ -221,7 +221,7 @@ class RTCPParser:
             
             if len(full_raw_payload) >= start_of_item + 2 + sdes_item.length:
                 
-                sdes_item.sdes_value = str(full_raw_payload[start_of_item + 2: start_of_item + 2 + sdes_item.length])
+                sdes_item.sdes_value = full_raw_payload[start_of_item + 2: start_of_item + 2 + sdes_item.length].decode()
                 
             else:
                 
@@ -243,10 +243,10 @@ class RTCPParser:
         
         if len(raw_payload) >= SENDER_INFO_SIZE + header.block_count * REPORT_BLOCK_SIZE:
             
-            packet.sender_info.ntp_timestamp = int(raw_payload[:8])
-            packet.sender_info.rtp_timestamp = int(raw_payload[8:12])
-            packet.sender_info.sender_packet_count = int(raw_payload[12:16])
-            packet.sender_info.sender_octet_count = int(raw_payload[16:SENDER_INFO_SIZE])
+            packet.sender_info.ntp_timestamp = int.from_bytes(raw_payload[:8])
+            packet.sender_info.rtp_timestamp = int.from_bytes(raw_payload[8:12])
+            packet.sender_info.sender_packet_count = int.from_bytes(raw_payload[12:16])
+            packet.sender_info.sender_octet_count = int.from_bytes(raw_payload[16:SENDER_INFO_SIZE])
             report_data = raw_payload[SENDER_INFO_SIZE: SENDER_INFO_SIZE + header.block_count * REPORT_BLOCK_SIZE]
             packet.profil_specific_data = raw_payload[SENDER_INFO_SIZE + header.block_count * REPORT_BLOCK_SIZE:]
             packet.reports = RTCPParser.parse_rtcp_reports(report_data, header.block_count)
@@ -265,13 +265,13 @@ class RTCPParser:
         for report_num in range(block_count):
             
             block = RTCPReportBlock()
-            block.ssrc = int(report_data[report_num * REPORT_BLOCK_SIZE: report_num * REPORT_BLOCK_SIZE + 4])
-            block.fraction_lost = int(report_data[report_num * REPORT_BLOCK_SIZE + 4 : report_num * REPORT_BLOCK_SIZE + 5])
-            block.cumul_packet_lost = int(report_data[report_num * REPORT_BLOCK_SIZE + 5: report_num * REPORT_BLOCK_SIZE + 8])
-            block.ext_highest_seq_num_received = int(report_data[report_num * REPORT_BLOCK_SIZE + 8: report_num * REPORT_BLOCK_SIZE + 12])
-            block.interarrival_jitter = int(report_data[report_num * REPORT_BLOCK_SIZE + 12: report_num * REPORT_BLOCK_SIZE + 16])
-            block.last_sr_timestamp = int(report_data[report_num * REPORT_BLOCK_SIZE + 16: report_num * REPORT_BLOCK_SIZE + 20])
-            block.delay_last_sr = int(report_data[report_num * REPORT_BLOCK_SIZE + 20: report_num * REPORT_BLOCK_SIZE + 24])
+            block.ssrc = int.from_bytes(report_data[report_num * REPORT_BLOCK_SIZE: report_num * REPORT_BLOCK_SIZE + 4])
+            block.fraction_lost = int.from_bytes(report_data[report_num * REPORT_BLOCK_SIZE + 4 : report_num * REPORT_BLOCK_SIZE + 5])
+            block.cumul_packet_lost = int.from_bytes(report_data[report_num * REPORT_BLOCK_SIZE + 5: report_num * REPORT_BLOCK_SIZE + 8])
+            block.ext_highest_seq_num_received = int.from_bytes(report_data[report_num * REPORT_BLOCK_SIZE + 8: report_num * REPORT_BLOCK_SIZE + 12])
+            block.interarrival_jitter = int.from_bytes(report_data[report_num * REPORT_BLOCK_SIZE + 12: report_num * REPORT_BLOCK_SIZE + 16])
+            block.last_sr_timestamp = int.from_bytes(report_data[report_num * REPORT_BLOCK_SIZE + 16: report_num * REPORT_BLOCK_SIZE + 20])
+            block.delay_last_sr = int.from_bytes(report_data[report_num * REPORT_BLOCK_SIZE + 20: report_num * REPORT_BLOCK_SIZE + 24])
             reports[report_num] = block
             
         return reports

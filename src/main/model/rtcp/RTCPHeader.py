@@ -1,12 +1,26 @@
 class RTCPHeader:
     
-    marker: bool = True
-    payload_type: int
+    def to_bytes(self) -> bytearray:
+        
+        raw_header = bytearray(8)
+        raw_header[0] = self.version * 64 + 32 * self.padding + self.block_count
+        raw_header[1] = self.marker * 128 + self.payload_type
+        raw_header[2:4] = self.length.to_bytes(2)
+        raw_header[4:8] = self.ssrc.to_bytes(4)
+        
+        return raw_header
+        
+    
+    
     # V on 2 bits
     version: int = 2
     
     # P padding on 1 bit
     padding: bool = False
+    
+    marker: bool = True
+    
+    payload_type: int
     
     # Block number on 5 bits
     # Report blocks or SDES chuncks count

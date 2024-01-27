@@ -1,5 +1,16 @@
 class RTPFixedHeader:
     
+    def to_bytes(self) -> bytearray:
+        
+        raw_header = bytearray(12)
+        raw_header[0] = self.version * 64 + 32 * self.padding + self.extension * 16 + self.csrc_number
+        raw_header[1] = self.marker * 128 + self.payload_type
+        raw_header[2:4] = self.sequence_number.to_bytes(2)
+        raw_header[4:8] = self.timestamp.to_bytes(4)
+        raw_header[8:12] = self.ssrc.to_bytes(4)
+        
+        return raw_header
+    
     # V on 2 bits
     version: int = 2
     

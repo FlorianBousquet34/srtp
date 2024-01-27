@@ -87,7 +87,7 @@ class RTPPacketHandler:
          
          session.mark_bye_event(packet.packet.header.ssrc)
          
-         RTCPReverseAlgorithm.apply_rtcp_reverse_algorithm(packet, session)
+         RTCPReverseAlgorithm.apply_rtcp_reverse_algorithm(session)
          
           
          
@@ -120,8 +120,8 @@ class RTPPacketHandler:
     @staticmethod
     def handle_rtcp_app_packet(packet : RTCPPacket, session: RTPSession):
         
-        # TODO handleRTCPAPPPacket
-        # handle a RTCP APP packet
+        # !!! Override this method to handle a RTCP APP packet
+        
         pass
     
     @staticmethod

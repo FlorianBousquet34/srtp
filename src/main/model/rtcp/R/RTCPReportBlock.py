@@ -1,4 +1,20 @@
+from main.parser.RTCPParser import REPORT_BLOCK_SIZE
+
+
 class RTCPReportBlock:
+    
+    def to_bytes(self) -> bytearray:
+        
+        raw_data = bytearray(REPORT_BLOCK_SIZE)
+        raw_data[:4] = self.ssrc.to_bytes(4)
+        raw_data[4] = self.fraction_lost
+        raw_data[5:8] = self.cumul_packet_lost.to_bytes(3)
+        raw_data[8:12] = self.ext_highest_seq_num_received.to_bytes(4)
+        raw_data[12:16] = self.interarrival_jitter.to_bytes(4)
+        raw_data[16:20] = self.last_sr_timestamp.to_bytes(4)
+        raw_data[20:24] = self.delay_last_sr.to_bytes(4)
+        
+        return raw_data
     
     # The The SSRC identifier of the source to which the information in this
     # reception report block pertains 32 bits

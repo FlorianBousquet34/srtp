@@ -28,3 +28,6 @@ class RTPSender:
         
             if not session.participant.participant_state.we_send:
                 session.participant.participant_state.we_send = True
+        
+        else:
+            raise NameError("RTP Packet could not be sent to ssrc ", ssrc, " because no CNAME value could be found")

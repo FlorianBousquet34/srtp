@@ -1,4 +1,13 @@
+from main.utils.transformer.PaddingUtils import PaddingUtils
+
+
 class RTPPayload:
+    
+    def to_bytes(self) -> bytearray:
+        
+        _, self.raw_payload, self.pad_count = PaddingUtils.pad_string(self.payload)
+        
+        return self.raw_payload
     
     # The size of the padding
     pad_count: int
@@ -8,6 +17,3 @@ class RTPPayload:
     
     # Payload message without paddin
     payload: str
-    
-    
-    
