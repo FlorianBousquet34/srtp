@@ -5,14 +5,16 @@ from main.model.rtp.RTPSession import RTPSession
 
 class RTPParticipant:
     
-    def __init__(self, ssrc : int) -> None:
+    def __init__(self, ssrc : int, sdes_infos: dict[RTCPItemEnum, str]) -> None:
         self.ssrc = ssrc
+        self.sdes_infos = sdes_infos
     
     def join_session(self, session : RTPSession):
         
         # Called when the current participant is joining a session
         
         self.participant_state = RTCPParticipantState(session, self)
+        session.sdes_info[self.ssrc] = self.sdes_infos
         session.add_to_session(self.ssrc, self)
         session.participant = self
     

@@ -1,6 +1,6 @@
 import socket
 
-class RTPProfile:
+class RTPSessionContext:
     
     def __init__(self) -> None:
         

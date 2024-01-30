@@ -1,7 +1,7 @@
-from main.model.rtp.RTPSessionContext import RTPProfile
+from main.model.rtp.RTPSessionContext import RTPSessionContext
 
 
-class SRTPCryptoContext(RTPProfile):
+class SRTPCryptoContext(RTPSessionContext):
     
     # The authentication algorithm (can be NONE but not recommanded)
     # Can be probided by the SRTPAuthenticationAlgorithmIdentifierEnum

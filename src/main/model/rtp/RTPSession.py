@@ -5,7 +5,7 @@ from main.model.rtp.RTPPacket import RTPPacket
 from main.model.rtp.RTPParticipant import RTPParticipant
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from main.model.rtp.RTPSessionContext import RTPProfile
+from main.model.rtp.RTPSessionContext import RTPSessionContext
 
 DELETION_DELAY : float = 5.0
 
@@ -21,8 +21,9 @@ NTP_TIMESTAMP_MULTIPLIER : int = int(1e6)
 
 class RTPSession:
     
-    def __init__(self) -> None:
+    def __init__(self, profile: RTPSessionContext) -> None:
         self.latest_rtcp_timer = []
+        self.profile = profile
         self.leave_scheduler = AsyncIOScheduler()
         self.leave_scheduler.start()
     
@@ -146,7 +147,7 @@ class RTPSession:
             self.last_difference[source] = arrival_time - sent_time
             
     # The RTPSession Profile
-    profile: RTPProfile
+    profile: RTPSessionContext
     
     # The RTCP transmission interval
     # Is calculated and increases with the number of participants
@@ -190,7 +191,7 @@ class RTPSession:
     senders : dict[int, RTPParticipant] = {}
     
     # most recent sdes infos
-    sdes_info : dict[int, dict[int, RTCPGenericItem]]
+    sdes_info : dict[int, dict[int, str]]
     
     # Waiting to leave is a flag activated when the user wants to
     # send a BYE packet but has to wait because there are more than
