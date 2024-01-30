@@ -11,9 +11,9 @@ monitoring of the transfert session.
 
 # first install the required packages
 
-'''
+```
 pip install -r requirements.txt
-'''
+```
 
 ## How to use
 
