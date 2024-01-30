@@ -1,5 +1,6 @@
 from main.model.rtcp.RTCPHeader import RTCPHeader
 from main.model.rtcp.RTCPParticipantState import SEQ_NUM_SIZE
+from main.model.rtcp.RTCPSimpleHeader import RTCPSimpleHeader
 from main.model.rtcp.r.RTCPReportBlock import RTCPReportBlock
 from main.model.rtcp.rr.RTCPRRPacket import RTCPRRPacket
 from main.model.rtcp.sdes.RTCPSDESChunk import RTCPSDEChunk
@@ -24,7 +25,7 @@ class RTCPBuilder:
     def build_sdes_packet(session: RTPSession) -> RTCPSDESPacket:
         
         packet = RTCPSDESPacket()
-        packet.header = RTCPBuilder.build_header(session, RTPPayloadTypeEnum.RTCP_SDES)
+        packet.header = RTCPBuilder.build_simple_header(RTPPayloadTypeEnum.RTCP_SDES)
         
         chunck = RTCPSDEChunk()
         chunck.source = session.participant.ssrc
@@ -36,6 +37,7 @@ class RTCPBuilder:
             chunck.sdes_items[item_num].sdes_value = session.participant.sdes_infos[item_key]
             
         packet.chuncks = [chunck]
+        packet.header.block_count = len(packet.chuncks)
         
         return packet
     
@@ -49,6 +51,9 @@ class RTCPBuilder:
         
         new_length = stacket_length + len(packet.profil_specific_data) + REPORT_BLOCK_SIZE * REPORT_BLOCK_LIMIT
         estimated_next_length = new_length + len(packet.profil_specific_data) + REPORT_BLOCK_SIZE * REPORT_BLOCK_LIMIT
+        
+        packet.header.block_count = len(packet.reports)
+        
         if len(session.lastest_received) > 0 and session.profile.buffer_size <  estimated_next_length:
             return [packet] + RTCPBuilder.build_rr_packet(session, new_length)
         else:
@@ -63,6 +68,8 @@ class RTCPBuilder:
         packet.reports = RTCPBuilder.build_rtcp_reports(session)
         packet.sender_info = RTCPBuilder.build_rtcp_sender_info(session)
         packet.profil_specific_data = RTCPBuilder.build_rtcp_profile_specific_data(session, True)
+        
+        packet.header.block_count = len(packet.reports)
         
         if len(session.lastest_received) > 0:
             return [packet] + RTCPBuilder.build_rr_packet(session, OFFSET_OCTETS + SENDER_INFO_SIZE + len(packet.profil_specific_data) + REPORT_BLOCK_SIZE * REPORT_BLOCK_LIMIT)
@@ -91,6 +98,15 @@ class RTCPBuilder:
         header = RTCPHeader()
         header.payload_type = payload_type.value
         header.ssrc = session.participant.ssrc
+        header.block_count = 1
+        
+        return header
+    
+    @staticmethod
+    def build_simple_header(payload_type: RTPPayloadTypeEnum) -> RTCPSimpleHeader:
+        
+        header = RTCPSimpleHeader()
+        header.payload_type = payload_type.value
         header.block_count = 1
         
         return header

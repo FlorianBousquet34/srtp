@@ -1,4 +1,4 @@
-from main.model.rtcp.RTCPHeader import RTCPHeader
+from main.model.rtcp.RTCPSimpleHeader import RTCPSimpleHeader
 from main.model.rtcp.bye.RTCPBYEReason import RTCPBYEReason
 
 
@@ -12,14 +12,13 @@ class RTCPBYEPacket:
             raw_reason = self.reason.to_bytes()
         
         # compute sources to bytes
-        # first source is included in header
-        sources_bytes = bytearray(len(self.sources - 1))
-        for index in range(len(self.sources - 1)):
+        sources_bytes = bytearray(len(self.sources))
+        for index in range(len(self.sources)):
             sources_bytes[index] = self.sources[index].to_bytes()
  
         return self.header.to_bytes() + sources_bytes + raw_reason
     
-    header : RTCPHeader
+    header : RTCPSimpleHeader
     
     # source of the bye packet
     sources : list[int]

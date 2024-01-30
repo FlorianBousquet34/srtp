@@ -1,6 +1,7 @@
 from main.model.rtcp.RTCPCompoundPacket import RTCPCompoundPacket
 from main.model.rtcp.RTCPHeader import RTCPHeader
 from main.model.rtcp.RTCPPacket import RTCPPacket
+from main.model.rtcp.RTCPSimpleHeader import RTCPSimpleHeader
 from main.model.rtcp.app.RTCPAPPPacket import RTCPAPPPacket
 from main.model.rtcp.bye.RTCPBYEPacket import RTCPBYEPacket
 from main.model.rtcp.bye.RTCPBYEReason import RTCPBYEReason
@@ -15,6 +16,7 @@ from main.model.rtcp.sr.RTCPSRSenderInfo import RTCPSRSenderInfo
 from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
 
 REPORT_BLOCK_SIZE = 24
+SMALL_HEADER_SIZE = 4
 HEADER_SIZE = 8
 SSRC_SIZE = 4
 SENDER_INFO_SIZE = 20
@@ -24,34 +26,46 @@ class RTCPParser:
     @staticmethod
     def parse_rtcp_compound_packet(packet: RTCPCompoundPacket):
         
-        if len(packet.raw_data) >= HEADER_SIZE:
+        if len(packet.raw_data) >= SMALL_HEADER_SIZE:
             
-            raw_header = packet.raw_data[:HEADER_SIZE]
-            header : RTCPHeader = RTCPParser.parse_rtcp_header(raw_header)
-        
-            start_of_packet = HEADER_SIZE
+            raw_small_header = packet.raw_data[:SMALL_HEADER_SIZE]
+            header = RTCPParser.parse_rtcp_simple_header(raw_small_header)
+            
+            start_of_packet = 0
+            if header.payload_type not in [RTPPayloadTypeEnum.RTCP_BYE.value, RTPPayloadTypeEnum.RTCP_SDES.value]:
+                if len(packet.raw_data) >= HEADER_SIZE:
+                    header = RTCPParser.parse_rtcp_header(packet.raw_data[SMALL_HEADER_SIZE:HEADER_SIZE], header)
+                else:
+                    raise ValueError("The RTCP Compound packet received is too small, header could not be parse.")
+            
             packet.packets = []
             
-            for rtcp_packet_num in range(header.block_count):
+            for _ in range(header.block_count):
             
-                start_of_packet = RTCPParser.parse_rtcp_packet(packet, start_of_packet, rtcp_packet_num)
+                start_of_packet = RTCPParser.parse_rtcp_packet(packet, start_of_packet)
         
         else:
-            raise ValueError("The RTCP Compound packet received is too small, header could not be parse." +
-                             "*it can also be a packet without data")
+            raise ValueError("The RTCP Compound packet received is too small, header could not be parse.")
         
         
     @staticmethod
-    def parse_rtcp_packet(compound_packet: RTCPCompoundPacket, start_of_packet: int, rtcp_packet_num: int) -> int:
+    def parse_rtcp_packet(compound_packet: RTCPCompoundPacket, start_of_packet: int) -> int:
         
-        if len(compound_packet.raw_data) >= start_of_packet + HEADER_SIZE:
+        if len(compound_packet.raw_data) >= start_of_packet + SMALL_HEADER_SIZE:
             
-            raw_header = compound_packet.raw_data[start_of_packet: start_of_packet + HEADER_SIZE]
-            header : RTCPHeader = RTCPParser.parse_rtcp_header(raw_header)
+            raw_small_header = compound_packet.raw_data[start_of_packet: start_of_packet + SMALL_HEADER_SIZE]
+            header = RTCPParser.parse_rtcp_simple_header(raw_small_header)
+            payload_start = start_of_packet + SMALL_HEADER_SIZE
+            if header.payload_type not in [RTPPayloadTypeEnum.RTCP_BYE.value, RTPPayloadTypeEnum.RTCP_SDES.value]:
+                if len(compound_packet.raw_data) >= start_of_packet + HEADER_SIZE:
+                    header = RTCPParser.parse_rtcp_header(compound_packet.raw_data[start_of_packet + SMALL_HEADER_SIZE: start_of_packet + HEADER_SIZE], header)
+                    payload_start = start_of_packet + HEADER_SIZE
+                else:
+                    raise ValueError("The RTCP Compound block was too small to read the header")
             
             if len(compound_packet.raw_data) >= start_of_packet + HEADER_SIZE + header.length:
                 
-                raw_payload = compound_packet.raw_data[start_of_packet + HEADER_SIZE: start_of_packet + HEADER_SIZE + header.length]
+                raw_payload = compound_packet.raw_data[payload_start: payload_start + header.length]
                 packet, payload_size = RTCPParser.parse_rtcp_payload(raw_payload, header)
                 compound_packet.packets.append(packet)
                 
@@ -65,9 +79,16 @@ class RTCPParser:
         return payload_size + HEADER_SIZE
     
     @staticmethod
-    def parse_rtcp_header(raw_header: bytearray) -> RTCPHeader:
+    def parse_rtcp_header(raw_header: bytearray, simple_header: RTCPSimpleHeader) -> RTCPHeader:
         
-        header = RTCPHeader()
+        header = RTCPHeader(simple_header)
+        header.ssrc.from_bytes(raw_header)
+        return header
+    
+    @staticmethod
+    def parse_rtcp_simple_header(raw_header: bytearray) -> RTCPSimpleHeader:
+        
+        header = RTCPSimpleHeader()
         header.version = (raw_header[0] >> 6) & 0b11
         
         if header.version == 2:
@@ -76,15 +97,12 @@ class RTCPParser:
             header.padding = (raw_header[0] >> 5) & 1 != 1
             header.block_count = raw_header[0] & 0b11111
             header.payload_type = raw_header[1] >> 0 & 0b1111111
-            header.ssrc = int.from_bytes(raw_header[4:4 + SSRC_SIZE])
             
         else:
             raise ValueError("The RTCP Compound packed was not well formated, It must contain 4 octets blocks")
-        
-        return header
     
     @staticmethod
-    def parse_rtcp_payload(raw_payload: bytearray, header: RTCPHeader) -> (RTCPPacket, int):
+    def parse_rtcp_payload(raw_payload: bytearray, header: (RTCPHeader | RTCPSimpleHeader)) -> (RTCPPacket, int):
         
         paylaod_size : int
         packet : RTCPPacket = None
@@ -114,31 +132,28 @@ class RTCPParser:
         return (packet, paylaod_size)
     
     @staticmethod
-    def parse_rtcp_bye_packet(raw_payload: bytearray, header: RTCPHeader) -> (RTCPBYEPacket, int):
-        # the first ssrc is in header for genericity purpose
+    def parse_rtcp_bye_packet(raw_payload: bytearray, header: RTCPSimpleHeader) -> (RTCPBYEPacket, int):
+
         packet = RTCPBYEPacket()
         paylaod_size: int
         packet.sources = [0] * header.block_count
-        payload_ssrc_count = header.block_count - 1
         
-        if len(raw_payload) >= payload_ssrc_count * SSRC_SIZE:
+        if len(raw_payload) >= header.block_count * SSRC_SIZE:
             
-            packet.sources[0] = header.ssrc
-            
-            if payload_ssrc_count > 0:
+            if header.block_count > 0:
                 
-                for source_num in range(payload_ssrc_count):
+                for source_num in range(header.block_count):
                     
-                    packet.sources[source_num + 1] = int.from_bytes(raw_payload[source_num * SSRC_SIZE: (source_num + 1) * SSRC_SIZE])
+                    packet.sources[source_num] = int.from_bytes(raw_payload[source_num * SSRC_SIZE: (source_num + 1) * SSRC_SIZE])
                     
-            paylaod_size = payload_ssrc_count * SSRC_SIZE
+            paylaod_size = header.block_count * SSRC_SIZE
             
-            if len(raw_payload) > payload_ssrc_count * SSRC_SIZE:
+            if len(raw_payload) > header.block_count * SSRC_SIZE:
                 
                 packet.reason = RTCPBYEReason()
-                packet.reason.length = int.from_bytes(raw_payload[payload_ssrc_count * SSRC_SIZE: payload_ssrc_count * SSRC_SIZE + 1])
-                packet.reason.reason = raw_payload[payload_ssrc_count * SSRC_SIZE + 1: payload_ssrc_count * SSRC_SIZE + 1 + packet.reason.length].decode()
-                paylaod_size = payload_ssrc_count * SSRC_SIZE + 1 + packet.reason.length
+                packet.reason.length = int.from_bytes(raw_payload[header.block_count * SSRC_SIZE: header.block_count * SSRC_SIZE + 1])
+                packet.reason.reason = raw_payload[header.block_count * SSRC_SIZE + 1: header.block_count * SSRC_SIZE + 1 + packet.reason.length].decode()
+                paylaod_size = header.block_count * SSRC_SIZE + 1 + packet.reason.length
         
         else:
             
@@ -175,29 +190,28 @@ class RTCPParser:
     
 
     @staticmethod
-    def parse_rtcp_sdes_packet(raw_payload: bytearray, header: RTCPHeader) -> RTCPSDESPacket:
-        #The ssrc of the first chunck is in header.ssrc for generic purpose
+    def parse_rtcp_sdes_packet(raw_payload: bytearray, header: RTCPSimpleHeader) -> RTCPSDESPacket:
+
         packet = RTCPSDESPacket()
         packet.chuncks = [RTCPSDEChunk()] * header.block_count
-        full_raw_payload = header.ssrc.to_bytes(SSRC_SIZE) + raw_payload
         start_of_chunck = 0
         
         for chunck_num in range(header.block_count):
             
-            if len(full_raw_payload) >= start_of_chunck + SSRC_SIZE:
+            if len(raw_payload) >= start_of_chunck + SSRC_SIZE:
                 
-                packet.chuncks[chunck_num].source = int.from_bytes(full_raw_payload[start_of_chunck: start_of_chunck + SSRC_SIZE])
+                packet.chuncks[chunck_num].source = int.from_bytes(raw_payload[start_of_chunck: start_of_chunck + SSRC_SIZE])
                 packet.chuncks[chunck_num].sdes_items = []
                 start_of_item = start_of_chunck + SSRC_SIZE
-                next_item_type = full_raw_payload[start_of_item]
+                next_item_type = raw_payload[start_of_item]
                 
                 while next_item_type != 0:
                     
                     # end of sdes item list is marked by null octets
-                    start_of_item, next_item_type = RTCPParser.parse_rtcp_sdes_item(full_raw_payload, next_item_type, start_of_item, packet.chuncks[chunck_num])
+                    start_of_item, next_item_type = RTCPParser.parse_rtcp_sdes_item(raw_payload, next_item_type, start_of_item, packet.chuncks[chunck_num])
                     
                 # we now wait until next not null octet
-                while full_raw_payload[start_of_item] == 0:
+                while raw_payload[start_of_item] == 0:
                     
                     start_of_item += 1
                     
@@ -208,18 +222,18 @@ class RTCPParser:
         return packet
                 
     @staticmethod
-    def parse_rtcp_sdes_item(full_raw_payload: bytearray, next_item_type: int, start_of_item: int, chunck: RTCPSDEChunk):
+    def parse_rtcp_sdes_item(raw_payload: bytearray, next_item_type: int, start_of_item: int, chunck: RTCPSDEChunk):
         
         sdes_item = RTCPGenericItem()
         sdes_item.sdes_key = RTCPItemEnum._value2member_map_.get(next_item_type, None)
         
         if sdes_item.sdes_key is not None:
             
-            sdes_item.length = full_raw_payload[start_of_item + 1]
+            sdes_item.length = raw_payload[start_of_item + 1]
             
-            if len(full_raw_payload) >= start_of_item + 2 + sdes_item.length:
+            if len(raw_payload) >= start_of_item + 2 + sdes_item.length:
                 
-                sdes_item.sdes_value = full_raw_payload[start_of_item + 2: start_of_item + 2 + sdes_item.length].decode()
+                sdes_item.sdes_value = raw_payload[start_of_item + 2: start_of_item + 2 + sdes_item.length].decode()
                 
             else:
                 
@@ -230,7 +244,7 @@ class RTCPParser:
         
         chunck.sdes_items.append(sdes_item)
         
-        return start_of_item + 2 + sdes_item.length, full_raw_payload[start_of_item + 2 + sdes_item.length]
+        return start_of_item + 2 + sdes_item.length, raw_payload[start_of_item + 2 + sdes_item.length]
         
     
     @staticmethod

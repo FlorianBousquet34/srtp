@@ -93,5 +93,5 @@ class RTPParser:
         payload.pad_count = pad_count
         payload.raw_payload = data
         
-        return data
+        return payload
         

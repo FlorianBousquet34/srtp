@@ -1,4 +1,4 @@
-from main.model.rtcp.RTCPHeader import RTCPHeader
+from main.model.rtcp.RTCPSimpleHeader import RTCPSimpleHeader
 from main.model.rtcp.sdes.RTCPSDESChunk import RTCPSDEChunk
 
 
@@ -11,8 +11,8 @@ class RTCPSDESPacket:
             
             raw_chuncks.append(self.chuncks[chunk_index].to_bytes())
             
-        return self.header.to_bytes() + raw_chuncks[4:]
+        return self.header.to_bytes() + raw_chuncks
     
-    header : RTCPHeader
+    header : RTCPSimpleHeader
     
     chuncks : list[RTCPSDEChunk]

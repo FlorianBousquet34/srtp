@@ -1,6 +1,7 @@
 import datetime
 from main.model.rtcp.RTCPCompoundPacket import RTCPCompoundPacket
 from main.model.rtcp.RTCPHeader import RTCPHeader
+from main.model.rtcp.RTCPSimpleHeader import RTCPSimpleHeader
 from main.model.rtcp.bye.RTCPBYEPacket import RTCPBYEPacket
 from main.model.rtcp.bye.RTCPBYEReason import RTCPBYEReason
 from main.model.rtp.RTPSession import RTPSession
@@ -71,11 +72,10 @@ class RTCPBYEAlgorithm:
         # length will be updated when calling the to_bytes data
         packet = RTCPBYEPacket()
         
-        packet.header = RTCPHeader()
+        packet.header = RTCPSimpleHeader()
         packet.header.payload_type = RTPPayloadTypeEnum.RTCP_BYE.value
         packet.header.block_count = 1
-        packet.header.ssrc = session.participant.ssrc
-        packet.sources = [packet.header.ssrc]
+        packet.sources = [session.participant.ssrc]
         
         if reason is not None:
 
