@@ -26,7 +26,7 @@ class RTPParser:
             # parse fixed part
             header.fixed_header = RTPParser.parse_rtp_fixed_header(raw_data[:HEADER_FIXED_SIZE])
             # parse csrc list
-            header.csrc_list = [None] * header.fixed_header.csrc_number
+            header.csrc_list = [0] * header.fixed_header.csrc_number
             
             if len(raw_data) >= HEADER_FIXED_SIZE + header.fixed_header.csrc_number * CSRC_SIZE:
                 

@@ -5,8 +5,14 @@ from main.model.rtp.RTPParticipant import RTPParticipant
 from main.model.rtp.RTPSession import RTPSession
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from main.threading.UDPHandlingThread import UDPHandlingThread
-
 from main.threading.UDPListenningThread import UDPListenningThread
+import random
+
+SEQ_NUM_BITS = 16
+SEQ_NUM_SIZE = 2**SEQ_NUM_BITS
+TIMESTAMPS_BITS = 16
+TIMESTAMP_SIZE = 2**TIMESTAMPS_BITS
+SECOND_TO_TIMESTAMP_MULTIPLIER = int(1e6)
 
 class RTCPParticipantState :
     
@@ -19,7 +25,9 @@ class RTCPParticipantState :
         self.target_bandwidth = session.profile.session_bandwidth * session.profile.control_bandwith_fraction
         self.average_packet_size = session.profile.estimated_packet_size
         self.participant = participant
-        self.participantjoin_time = datetime.utcnow()
+        self.latest_seq_num = random.SystemRandom().getrandbits(SEQ_NUM_BITS)
+        self.timestamp_offset = random.SystemRandom().getrandbits(TIMESTAMPS_BITS)
+        self.participant_join_time = datetime.utcnow()
         self.listenning_thread = UDPListenningThread(session)
         RTCPScheduler.schedule_next_rtcp_message(self)
         
@@ -36,11 +44,24 @@ class RTCPParticipantState :
         # get the real time relative to participant joinning session
         return (datetime.utcnow() - self.participant_join_time).total_seconds()
     
+    def get_next_random_seq_num(self):
+        
+        self.latest_seq_num = (self.latest_seq_num + 1) // SEQ_NUM_SIZE
+        return self.latest_seq_num
+    
+    def get_rtp_timestamp(self) -> int:
+        
+        return int((datetime.utcnow() - self.session.participant.participant_state.participant_join_time).total_seconds() * SECOND_TO_TIMESTAMP_MULTIPLIER
+                + self.timestamp_offset) // TIMESTAMP_SIZE
+    
     # The participant
     participant: RTPParticipant
     
     # The Time the participant joined the session
     participant_join_time : datetime
+    
+    # Timestamp offset
+    timestamp_offset: int
     
     # The RTP Session of the participant
     session: RTPSession
@@ -90,3 +111,7 @@ class RTCPParticipantState :
     
     # Handling thread
     handling_thread: UDPHandlingThread
+    
+    # Latest seq num used, incremented by one for each RTP Packet send
+    # and initiation must be random
+    latest_seq_num : int

@@ -1,4 +1,5 @@
 from main.model.rtcp.RTCPParticipantState import RTCPParticipantState
+from main.model.rtcp.sdes.items.RTCPItemEnum import RTCPItemEnum
 from main.model.rtp.RTPSession import RTPSession
 
 
@@ -26,3 +27,6 @@ class RTPParticipant:
     
     # Flag activated is participant is validated in session
     is_validated : bool = False
+    
+    # SDES infos (includes at least CNAME)
+    sdes_infos : dict[RTCPItemEnum, str]

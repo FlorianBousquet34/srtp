@@ -18,7 +18,7 @@ class RTPProfile:
     # Between 0 and 1 5% is recommanded
     control_bandwith_fraction: float = 0.05
     
-    # UDP Buffer size
+    # UDP Buffer size lower than MTU
     buffer_size : int = 1400
     
     # UDP Thread waiting time

@@ -2,7 +2,9 @@
 from datetime import datetime
 from main.handler.RTCPReverseAlgorithm import RTCPReverseAlgorithm
 from main.model.rtcp.RTCPPacket import RTCPPacket
+from main.model.rtcp.rr.RTCPRRPacket import RTCPRRPacket
 from main.model.rtcp.sdes.RTCPSDESPacket import RTCPSDESPacket
+from main.model.rtcp.sr.RTCPSRPacket import RTCPSRPacket
 from main.model.rtp.RTPPacket import RTPPacket
 from main.model.rtp.RTPSession import RTPSession
 from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
@@ -59,6 +61,8 @@ class RTPPacketHandler:
     def handle_non_rtcp_packet(packet : RTPPacket, session: RTPSession):
         
         ssrc = packet.header.fixed_header.ssrc
+        
+        session.add_to_latest_received(ssrc, packet)
                 
         # session participants handling
         RTPPacketHandler.try_adding_participants_to_session(ssrc, session)
@@ -67,6 +71,8 @@ class RTPPacketHandler:
         RTPPacketHandler.handle_inactivity(ssrc, session)
         
         session.add_to_sender(ssrc)
+        
+        session.update_interarrival_jitter(ssrc, session.get_ntp_timestamp(), packet.header.fixed_header.timestamp)
 
         RTPPacketHandler.execute_packet_treatment(packet, session)
 
@@ -92,16 +98,14 @@ class RTPPacketHandler:
           
          
     @staticmethod
-    def handle_rtcp_sr_packet(packet : RTCPPacket, session: RTPSession):
+    def handle_rtcp_sr_packet(packet : RTCPSRPacket, session: RTPSession):
         
-        # TODO handleRTCPSRPacket
         # handle a RTCP Sender Report packet
-        pass
+        session.update_last_sr_report(packet.sender_info.ntp_timestamp, packet.header.ssrc)
     
     @staticmethod
-    def handle_rtcp_rr_packet(packet : RTCPPacket, session: RTPSession):
+    def handle_rtcp_rr_packet(packet : RTCPRRPacket, session: RTPSession):
         
-        # TODO handleRTCPRRPacket
         # handle a RTCP Receiver Report packet
         pass
     

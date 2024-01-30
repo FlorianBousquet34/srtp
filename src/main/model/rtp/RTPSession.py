@@ -1,6 +1,7 @@
 import datetime
 from main.model.rtcp.sdes.items.RTCPGenericItem import RTCPGenericItem
 from main.model.rtcp.sdes.items.RTCPItemEnum import RTCPItemEnum
+from main.model.rtp.RTPPacket import RTPPacket
 from main.model.rtp.RTPParticipant import RTPParticipant
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
@@ -13,6 +14,10 @@ DELETION_DELAY : float = 5.0
 RECEIVER_INACTIVITY_INTERVAL_COUNT : int = 5
 
 SENDER_INACTIVITY_INTERVAL_COUNT : int = 2
+
+JITTER_MULTIPLIER : int = 16
+
+NTP_TIMESTAMP_MULTIPLIER : int = int(1e6)
 
 class RTPSession:
     
@@ -112,6 +117,33 @@ class RTPSession:
                     self.senders[ssrc] = self.invalidated_members[ssrc]
             else:
                 self.senders[ssrc] = self.session_members[ssrc]
+    
+    def add_to_latest_received(self, ssrc: int, packet: RTPPacket):
+        
+        if self.lastest_received.get(ssrc, None) is None:
+            self.lastest_received[ssrc] = [packet]
+        else:
+            self.lastest_received[ssrc].append(packet)
+            
+    def update_last_sr_report(self, ntp_timestamp: int, source: int):
+        
+        ntp_bytes = ntp_timestamp.to_bytes(8)
+        mid_ntp = int.from_bytes(ntp_bytes[2:6])
+        self.latest_sr_report[source] = (mid_ntp, self.get_ntp_timestamp())
+            
+    def get_ntp_timestamp(self) -> int:
+        
+        return int((datetime.datetime.utcnow() - self.session_start).total_seconds() * NTP_TIMESTAMP_MULTIPLIER)
+    
+    def update_interarrival_jitter(self, source: int, arrival_time: int, sent_time: int):
+        
+        if self.last_difference.get(source, None) is None:
+            self.last_difference[source] = arrival_time - sent_time
+            self.interarrival_jitter[source] = 0
+        else:
+            difference = abs(self.last_difference[source] - (arrival_time - sent_time))
+            self.interarrival_jitter[source] += (difference - self.interarrival_jitter[source]) / JITTER_MULTIPLIER
+            self.last_difference[source] = arrival_time - sent_time
             
     # The RTPSession Profile
     profile: RTPProfile
@@ -167,3 +199,23 @@ class RTPSession:
     # received
     # TODO implement this behaviour
     waiting_to_leave_50 : bool = False
+    
+    # Packets received since last RTCP
+    lastest_received : dict[int, list[RTPPacket]] = {}
+    
+    # Packets sent since last RTCP
+    latest_sent : list[RTPPacket] = []
+    
+    # Current seq num roll per source
+    seq_num_roll : dict[int, int] = {}
+    
+    # Last SR ntp_timestamp midle 32-bits of source and
+    # receiving ntp_timestamp of sr packet
+    latest_sr_report: dict[int, (int, int)] = {}
+    
+    # The updated interrival jitter of each sources
+    interarrival_jitter: dict[int, int] = {}
+    
+    # The last reception time difference D(i-1) = (Ri - Si)
+    # used for interarrival jitter computation
+    last_difference: dict[int, int] = {}
