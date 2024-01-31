@@ -23,9 +23,9 @@ class SRTPAuthAlgorithm:
         
         if self.algorithm_identifier == SRTPAuthenticationAlgorithmIdentifierEnum.HMACSHA1.value:
                 hmac_64 = hmac.new(session_key, message, hashlib.sha1).digest()
-                return base64.urlsafe_b64encode(hmac_64).decode()
+                return base64.urlsafe_b64encode(hmac_64).decode()[:self.n_tag // 8]
         if self.algorithm_identifier == SRTPAuthenticationAlgorithmIdentifierEnum.NONE.value:
-            return ""
+            return bytearray(self.n_tag // 8)
         # !!! implement other auth algorithm here
         else:
             raise ValueError("Auth algorithm not implemented", self.algorithm_identifier)

@@ -55,7 +55,7 @@ class SRTPListenner:
                     
                     for srtcp_packet in packet.packets:
                         
-                        SRTPPacketHandler.handle_srtcp_packet(srtcp_packet)
+                        SRTPPacketHandler.handle_srtcp_packet(srtcp_packet, session)
                 else:
                     
                     # it is not a rtcp compound packet

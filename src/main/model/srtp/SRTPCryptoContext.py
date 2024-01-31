@@ -16,3 +16,9 @@ class SRTPCryptoContext(RTPSessionContext):
     
     # The length of the session mki in octets
     mki_length : int = 4
+    
+    # replay list length
+    replay_length : int = 20
+    
+    # replay list timeout in seconds
+    replay_timeout : int = 30

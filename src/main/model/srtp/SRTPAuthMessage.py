@@ -11,7 +11,7 @@ class SRTPAuthMessage:
         
         self.plain_message = self.rtp_packet.to_bytes()
         # RTP and RTCP Compound packet both start with a full header 8 bytes
-        encrypted_payload = session.crypto_context.encrypt_algorithm.encrypt(self.plain_message[HEADER_SIZE:])
+        encrypted_payload = session.crypto_context.encrypt_algorithm.encrypt(self.plain_message[HEADER_SIZE:], session)
         self.raw_encrypted_message = self.plain_message[:HEADER_SIZE] + encrypted_payload
         return self.raw_encrypted_message
     
@@ -21,7 +21,7 @@ class SRTPAuthMessage:
         # We decrypt starting from raw_encrypted_message
         if len(self.raw_encrypted_message) >= HEADER_SIZE:
             
-            decrypted_payload = session.crypto_context.encrypt_algorithm.decrypt(self.raw_encrypted_message[HEADER_SIZE:])
+            decrypted_payload = session.crypto_context.encrypt_algorithm.decrypt(self.raw_encrypted_message[HEADER_SIZE:], session)
             self.plain_message = self.raw_encrypted_message[:HEADER_SIZE] + decrypted_payload
             
         else:

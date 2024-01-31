@@ -146,6 +146,13 @@ class RTPSession:
             self.interarrival_jitter[source] += (difference - self.interarrival_jitter[source]) / JITTER_MULTIPLIER
             self.last_difference[source] = arrival_time - sent_time
             
+    def increase_roc(self, ssrc: int, _):
+        
+        if self.seq_num_roll.get(ssrc, None) is None:
+            self.seq_num_roll[ssrc] = 1
+        else:
+            self.seq_num_roll[ssrc] += 1
+            
     # The RTPSession Profile
     profile: RTPSessionContext
     

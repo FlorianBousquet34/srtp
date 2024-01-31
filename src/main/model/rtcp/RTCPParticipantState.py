@@ -46,13 +46,18 @@ class RTCPParticipantState :
     
     def get_next_random_seq_num(self):
         
-        self.latest_seq_num = (self.latest_seq_num + 1) // SEQ_NUM_SIZE
+        latest_seq_num = (self.latest_seq_num + 1)
+        if latest_seq_num >= SEQ_NUM_SIZE:
+            self.roc += 1
+            self.latest_seq_num = latest_seq_num % SEQ_NUM_SIZE
+        else:
+            self.latest_seq_num = latest_seq_num
         return self.latest_seq_num
     
     def get_rtp_timestamp(self) -> int:
         
         return int((datetime.utcnow() - self.session.participant.participant_state.participant_join_time).total_seconds() * SECOND_TO_TIMESTAMP_MULTIPLIER
-                + self.timestamp_offset) // TIMESTAMP_SIZE
+                + self.timestamp_offset) % TIMESTAMP_SIZE
     
     # The participant
     participant: RTPParticipant
@@ -115,3 +120,6 @@ class RTCPParticipantState :
     # Latest seq num used, incremented by one for each RTP Packet send
     # and initiation must be random
     latest_seq_num : int
+    
+    # current roll over count for sequence number
+    roc: int = 0

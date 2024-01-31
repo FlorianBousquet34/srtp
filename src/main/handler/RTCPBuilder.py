@@ -164,10 +164,9 @@ class RTCPBuilder:
                                 if packet.header.fixed_header.sequence_number > SEQ_NUM_SIZE // 2
                                 else packet.header.fixed_header.sequence_number + SEQ_NUM_SIZE * (session.seq_num_roll.get(report.ssrc, 0) + 1)
                                 for packet in packets]
-            if session.seq_num_roll.get(report.ssrc, None) is None:
-                session.seq_num_roll[report.ssrc] = 1
-            else:
-                session.seq_num_roll[report.ssrc] += 1
+            session.increase_roc(report.ssrc, max([packet.header.fixed_header.sequence_number
+                                                   for packet in packets
+                                                   if packet.header.fixed_header.sequence_number < SEQ_NUM_SIZE // 2]))
         else:
             extended_seq_num = [packet.header.fixed_header.sequence_number + SEQ_NUM_SIZE * session.seq_num_roll.get(report.ssrc, 0) for packet in packets]
         

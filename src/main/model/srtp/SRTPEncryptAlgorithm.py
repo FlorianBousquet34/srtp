@@ -1,12 +1,15 @@
+from main.model.srtp.SRTPSession import SRTPSession
+
+
 class SRTPEncryptAlgorithm:
     
-    def encrypt(self) -> bytearray:
+    def encrypt(self, data: bytearray, session: SRTPSession) -> bytearray:
         
         # TODO Encrypt
         
         pass
     
-    def decrypt(self) -> bytearray:
+    def decrypt(self, data: bytearray, session: SRTPSession) -> bytearray:
         
         # TODO Decrypt
         
