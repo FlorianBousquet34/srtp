@@ -4,13 +4,19 @@ from main.model.rtp.RTPPayload import RTPPayload
 
 class RTPPacket:
     
-    def __init__(self, raw_data: bytearray) -> None:
+    def __init__(self, raw_data: bytearray | None = None) -> None:
         
-        self.raw_data = raw_data
+        if raw_data:
+            self.raw_data = raw_data
         
     def to_bytes(self) -> bytearray:
         
-        self.raw_data = self.header.to_bytes() + self.payload.to_bytes()
+        self.payload.to_bytes()
+        
+        if self.payload.pad_count > 0:
+            self.header.fixed_header.padding = True
+        
+        self.raw_data = self.header.to_bytes() + self.payload.raw_payload
         
         return self.raw_data
     

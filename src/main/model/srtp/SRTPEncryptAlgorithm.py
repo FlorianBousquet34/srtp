@@ -6,9 +6,8 @@ from Crypto.Util import Counter
 
 class SRTPEncryptAlgorithm:
     
-    def __init__(self, block_cipher_mode : str, session_key_size: int,
-                session_salt_length: int, srtp_prefix_length : int = 0,
-                block_cipher_size: int = 16,
+    def __init__(self, session_key_size: int, session_salt_length: int,
+                block_cipher_mode : str = "", srtp_prefix_length : int = 0, block_cipher_size: int = 16,
                 algorithm_identifier: str = SRTPEncryptionAlgorithmIdentifierEnum.AES_COUNTER_MODE.value) -> None:
         self.block_cipher_mode = block_cipher_mode
         self.block_cipher_size = block_cipher_size

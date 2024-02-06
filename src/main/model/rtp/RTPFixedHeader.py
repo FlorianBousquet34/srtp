@@ -15,16 +15,16 @@ class RTPFixedHeader:
     version: int = 2
     
     # P padding on 1 bit
-    padding: bool
+    padding: bool = False
     
     # X extended header on 1 bit
-    extension: bool
+    extension: bool = False
     
     # CC number of CRSC on 4 bits
-    csrc_number: int 
+    csrc_number: int
     
     # M marqueur on 1 bit
-    marker: bool
+    marker: bool = False
     
     # PT on 7 bits
     # values can be provided with the RTPPaylaodTypeEnum

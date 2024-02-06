@@ -33,15 +33,16 @@ class RTPParser:
                 for csrc_num in range(header.fixed_header.csrc_number):
                     
                     header.csrc_list[csrc_num] = int.from_bytes(raw_data[HEADER_FIXED_SIZE + csrc_num * CSRC_SIZE: HEADER_FIXED_SIZE + (csrc_num + 1) * CSRC_SIZE])
+            
+            else:
+                
+                raise ValueError("RTP Packet too small to parse ", header.fixed_header.csrc_number, " csrc") 
                     
             if header.fixed_header.extension:
                 
                 header.header_extension = RTPHeaderExtension()
                 extension_offset = RTPParser.parse_rtp_header_extension(header.header_extension, raw_data[HEADER_FIXED_SIZE + header.fixed_header.csrc_number * CSRC_SIZE:])
                 
-            else:
-                
-                raise ValueError("RTP Packet too small to parse ", header.fixed_header.csrc_number, " csrc") 
         else:
             
             raise ValueError("RTP Packet was too small to parse header ", HEADER_FIXED_SIZE,
@@ -66,11 +67,11 @@ class RTPParser:
         
         if(fixed_header.version == 2):
             
-            fixed_header.padding = (raw_data[0] >> 3) & 1 != 0
-            fixed_header.extension = (raw_data[0] >> 5) & 1 != 0
+            fixed_header.padding = (raw_data[0] >> 5) & 1 != 0
+            fixed_header.extension = (raw_data[0] >> 4) & 1 != 0
             fixed_header.csrc_number = raw_data[0] & 0b1111
             fixed_header.marker = (raw_data[1] >> 7) & 1 != 0
-            fixed_header.payload_type = raw_data & 0b1111111
+            fixed_header.payload_type = raw_data[1] & 0b1111111
             fixed_header.sequence_number = int.from_bytes(raw_data[2:4])
             fixed_header.timestamp = int.from_bytes(raw_data[4:8])
             fixed_header.ssrc = int.from_bytes(raw_data[8:12])

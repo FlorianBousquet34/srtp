@@ -6,11 +6,11 @@ class RTPHeader:
     
     def to_bytes(self) -> bytearray:
         
-        csrc_data = bytearray(len(self.csrc_list) * 4)
+        csrc_data = bytearray(self.fixed_header.csrc_number * 4)
         
-        for csrc_index in self.csrc_list:
+        for csrc_index in range(self.fixed_header.csrc_number):
             
-            csrc_data[csrc_index * 4: ( csrc_index + 1 ) * 4] = self.csrc_list[csrc_index]
+            csrc_data[csrc_index * 4: ( csrc_index + 1 ) * 4] = self.csrc_list[csrc_index].to_bytes(4)
             
         extension_data = bytearray()
         if self.header_extension is not None :
@@ -22,7 +22,7 @@ class RTPHeader:
     fixed_header: RTPFixedHeader
     
     # Enable the header extension implementations
-    header_extension: RTPHeaderExtension | None
+    header_extension: RTPHeaderExtension | None = None
     
     # The list of constribution source (CSRC)
     # from 0 up to 15 items of 32 bits identifier
