@@ -1,5 +1,4 @@
 import datetime
-from main.model.rtp.RTPPacket import RTPPacket
 from main.model.rtp.RTPSession import RTPSession
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 

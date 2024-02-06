@@ -12,8 +12,6 @@ class RTPSession:
     def __init__(self, profile: RTPSessionContext) -> None:
         self.latest_rtcp_timer = []
         self.profile = profile
-        self.leave_scheduler = AsyncIOScheduler()
-        self.leave_scheduler.start()
     
     def participant_validation(self, ssrc) -> bool:
         
@@ -39,6 +37,9 @@ class RTPSession:
         found = self.session_members.get(ssrc, None)
         if found:
             found.is_leaving = True
+            if self.leave_scheduler is None:
+                self.leave_scheduler = AsyncIOScheduler()
+                self.leave_scheduler.start()
             scheduler : AsyncIOScheduler = self.leave_scheduler
             scheduler.add_job(self.remove_from_session(ssrc), 'date', datetime.datetime(second=DELETION_DELAY) 
                                 + datetime.datetime.utcnow(), id=ssrc)
