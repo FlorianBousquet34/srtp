@@ -53,7 +53,7 @@ class RTPPacketHandler:
     def handle_inactivity(ssrc : int, session : RTPSession):
 
         session.inactive_tracker[ssrc] = datetime.utcnow()
-        if session.inactive_members(ssrc, None) is not None :
+        if session.inactive_members.get(ssrc, None) is not None :
             session.inactive_members.pop(ssrc)
             session.add_to_session(ssrc)
                 

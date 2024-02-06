@@ -1,8 +1,7 @@
+from main.model.rtcp.RTCPConsts import HEADER_SIZE
 from main.model.rtp.RTPPacket import RTPPacket
 from main.model.srtcp.SRTCPCompoundPacket import SRTCPCompoundPacket
 from main.model.srtp.SRTPSession import SRTPSession
-from main.parser.RTCPParser import HEADER_SIZE
-from main.reader.RTPListenner import RTPListenner
 
 
 class SRTPAuthMessage:

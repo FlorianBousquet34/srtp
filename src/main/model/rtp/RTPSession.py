@@ -1,23 +1,11 @@
 import datetime
-from main.model.rtcp.sdes.items.RTCPGenericItem import RTCPGenericItem
+from typing import Any
+from main.model.rtcp.RTCPConsts import DELETION_DELAY, JITTER_MULTIPLIER, NTP_TIMESTAMP_MULTIPLIER, RECEIVER_INACTIVITY_INTERVAL_COUNT, SENDER_INACTIVITY_INTERVAL_COUNT
 from main.model.rtcp.sdes.items.RTCPItemEnum import RTCPItemEnum
 from main.model.rtp.RTPPacket import RTPPacket
-from main.model.rtp.RTPParticipant import RTPParticipant
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from main.model.rtp.RTPSessionContext import RTPSessionContext
-
-DELETION_DELAY : float = 5.0
-
-# After 5 RTCP Intervals without message from a
-# source, it is recommanded to mark it inactive
-RECEIVER_INACTIVITY_INTERVAL_COUNT : int = 5
-
-SENDER_INACTIVITY_INTERVAL_COUNT : int = 2
-
-JITTER_MULTIPLIER : int = 16
-
-NTP_TIMESTAMP_MULTIPLIER : int = int(1e6)
 
 class RTPSession:
     
@@ -64,9 +52,10 @@ class RTPSession:
         self.invalidated_members.pop(ssrc, None)
         self.inactive_tracker.pop(ssrc, None)
         self.senders.pop(ssrc, None)
-    
-    def add_to_session(self, ssrc : int, participant : RTPParticipant | None = None):
         
+    
+    def add_to_session(self, ssrc : int, participant = None):
+        from main.model.rtp.RTPParticipant import RTPParticipant
         # Add the ssrc to the session members
         if participant is None:
             self.session_members[ssrc] = RTPParticipant(ssrc)
@@ -166,10 +155,10 @@ class RTPSession:
     session_start: datetime.datetime
     
     # Session members
-    session_members: dict[int, RTPParticipant] = {}
+    session_members: dict = {}
     
     # Session senders
-    session_senders : dict[int, RTPParticipant] = {}
+    session_senders : dict = {}
 
     # The Estimated Average Packet Size in octects
     # This depends of the application purpose
@@ -186,19 +175,19 @@ class RTPSession:
     inactive_tracker : dict[int, datetime.datetime] = {}
     
     # List of the inactive members
-    inactive_members : dict[int, RTPParticipant] = {}
+    inactive_members : dict = {}
     
     # Client participant
-    participant: RTPParticipant
-    
+    participant: Any
+
     # Last 5 RTCP Timers
     latest_rtcp_timer : list[datetime.datetime] = []
     
     # Senders in this session
-    senders : dict[int, RTPParticipant] = {}
+    senders : dict = {}
     
     # most recent sdes infos
-    sdes_info : dict[int, dict[int, str]]
+    sdes_info : dict[int, dict[int, str]] = {}
     
     # Waiting to leave is a flag activated when the user wants to
     # send a BYE packet but has to wait because there are more than

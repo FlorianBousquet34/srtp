@@ -3,7 +3,7 @@ from main.model.srtp.SRTPAuthAlgorithm import SRTPAuthAlgorithm
 from main.model.srtp.SRTPEncryptAlgorithm import SRTPEncryptAlgorithm
 
 
-class SRTPCryptoContext(RTPSessionContext):
+class SRTPCryptoContext:
     
     # The authentication algorithm (can be NONE but not recommanded)
     auth_algorithm: SRTPAuthAlgorithm

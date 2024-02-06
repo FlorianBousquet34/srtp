@@ -29,7 +29,7 @@ class TestRTPTestCase(unittest.TestCase):
         
     def test_build_packet(self):
         
-        print("### Test to byte RTP Packet ###")
+        print("### Test to bytes RTP Packet ###")
         csrc, payload_type, seq_num, timestamp, ssrc = ([1988265441, 541298968], 79, 37815, 781532197, 87152116)
         payload = "Hello world in a rtp packet"
         packet : RTPPacket = TestRTPTestCase.create_packet(csrc, payload_type, seq_num, timestamp, ssrc, payload)

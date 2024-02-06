@@ -7,7 +7,7 @@ class SRTPPacket:
     def to_bytes(self, session: SRTPSession) -> bytearray:
         
         # transform the message model to data bytes
-        self.auth_message.to_bytes()
+        self.auth_message.to_bytes(session)
         # create the auth tag
         self.authenticate_outgoing_message(session)
         

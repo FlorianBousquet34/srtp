@@ -1,5 +1,5 @@
+from main.model.rtcp.RTCPConsts import DELAY_MULTIPLIER, NTP_TIMESTAMP_MULTIPLIER, OFFSET_OCTETS, REPORT_BLOCK_LIMIT, REPORT_BLOCK_SIZE, SENDER_INFO_SIZE, SEQ_NUM_SIZE
 from main.model.rtcp.RTCPHeader import RTCPHeader
-from main.model.rtcp.RTCPParticipantState import SEQ_NUM_SIZE
 from main.model.rtcp.RTCPSimpleHeader import RTCPSimpleHeader
 from main.model.rtcp.r.RTCPReportBlock import RTCPReportBlock
 from main.model.rtcp.rr.RTCPRRPacket import RTCPRRPacket
@@ -9,15 +9,9 @@ from main.model.rtcp.sdes.items.RTCPGenericItem import RTCPGenericItem
 from main.model.rtcp.sr.RTCPSRPacket import RTCPSRPacket
 from main.model.rtcp.sr.RTCPSRSenderInfo import RTCPSRSenderInfo
 from main.model.rtp.RTPPacket import RTPPacket
-from main.model.rtp.RTPSession import NTP_TIMESTAMP_MULTIPLIER, RTPSession
 from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
 import random
-
-REPORT_BLOCK_LIMIT = 31
-OFFSET_OCTETS = 8
-REPORT_BLOCK_SIZE = 24
-SENDER_INFO_SIZE = 20
-DELAY_MULTIPLIER = 65536
+from main.model.rtp.RTPSession import RTPSession
 
 class RTCPBuilder:
     

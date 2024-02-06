@@ -1,7 +1,7 @@
+from main.model.rtcp.RTCPConsts import REPORT_BLOCK_SIZE
 from main.model.rtcp.RTCPHeader import RTCPHeader
 from main.model.rtcp.r.RTCPReportBlock import RTCPReportBlock
 from main.model.rtcp.sr.RTCPSRSenderInfo import RTCPSRSenderInfo
-from main.parser.RTCPParser import REPORT_BLOCK_SIZE
 
 class RTCPSRPacket:
     

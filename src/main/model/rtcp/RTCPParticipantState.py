@@ -1,5 +1,6 @@
 from datetime import datetime
 from apscheduler.job import Job
+from main.model.rtcp.RTCPConsts import SECOND_TO_TIMESTAMP_MULTIPLIER, SEQ_NUM_BITS, SEQ_NUM_SIZE, TIMESTAMP_SIZE, TIMESTAMPS_BITS
 from main.scheduler.RTCPScheduler import RTCPScheduler
 from main.model.rtp.RTPParticipant import RTPParticipant
 from main.model.rtp.RTPSession import RTPSession
@@ -7,12 +8,6 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from main.threading.UDPHandlingThread import UDPHandlingThread
 from main.threading.UDPListenningThread import UDPListenningThread
 import random
-
-SEQ_NUM_BITS = 16
-SEQ_NUM_SIZE = 2**SEQ_NUM_BITS
-TIMESTAMPS_BITS = 16
-TIMESTAMP_SIZE = 2**TIMESTAMPS_BITS
-SECOND_TO_TIMESTAMP_MULTIPLIER = int(1e6)
 
 class RTCPParticipantState :
     

@@ -1,8 +1,15 @@
 from main.model.rtp.RTPSession import RTPSession
+from main.model.rtp.RTPSessionContext import RTPSessionContext
 from main.model.srtp.SRTPCryptoContext import SRTPCryptoContext
 from expiringdict import ExpiringDict
 
 class SRTPSession(RTPSession):
+    
+    def __init__(self, profile: RTPSessionContext, crypto_context: SRTPCryptoContext) -> None:
+        
+        super().__init__(profile)
+        
+        self.crypto_context = crypto_context
     
     def increase_roc(self, ssrc: int, max_seq_num: int):
         

@@ -1,6 +1,7 @@
+from main.model.rtcp.RTCPConsts import HEADER_SIZE, IS_ENCRYPTED_MULTIPLIER, SMALL_HEADER_SIZE
 from main.model.srtcp.SRTCPCompoundPacket import SRTCPCompoundPacket
-from main.model.srtcp.SRTCPPacket import IS_ENCRYPTED_MULTIPLIER, SRTCPPacket
-from main.parser.RTCPParser import HEADER_SIZE, SMALL_HEADER_SIZE, RTCPParser
+from main.model.srtcp.SRTCPPacket import SRTCPPacket
+from main.parser.RTCPParser import RTCPParser
 from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
 
 SRTCP_INDEX_EXTENSION = 4

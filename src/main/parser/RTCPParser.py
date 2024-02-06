@@ -1,4 +1,5 @@
 from main.model.rtcp.RTCPCompoundPacket import RTCPCompoundPacket
+from main.model.rtcp.RTCPConsts import HEADER_SIZE, REPORT_BLOCK_SIZE, SENDER_INFO_SIZE, SMALL_HEADER_SIZE, SSRC_SIZE
 from main.model.rtcp.RTCPHeader import RTCPHeader
 from main.model.rtcp.RTCPPacket import RTCPPacket
 from main.model.rtcp.RTCPSimpleHeader import RTCPSimpleHeader
@@ -15,11 +16,7 @@ from main.model.rtcp.sr.RTCPSRPacket import RTCPSRPacket
 from main.model.rtcp.sr.RTCPSRSenderInfo import RTCPSRSenderInfo
 from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
 
-REPORT_BLOCK_SIZE = 24
-SMALL_HEADER_SIZE = 4
-HEADER_SIZE = 8
-SSRC_SIZE = 4
-SENDER_INFO_SIZE = 20
+
 
 class RTCPParser:
     
@@ -105,7 +102,8 @@ class RTCPParser:
     def parse_rtcp_payload(raw_payload: bytearray, header: (RTCPHeader | RTCPSimpleHeader)) -> (RTCPPacket, int):
         
         paylaod_size : int
-        packet : RTCPPacket = None
+        
+        packet: RTCPPacket
         
         if header.payload_type == RTPPayloadTypeEnum.RTCP_APP.value:
             
@@ -126,6 +124,8 @@ class RTCPParser:
         elif header.payload_type == RTPPayloadTypeEnum.RTCP_SR.value: 
             
             packet, paylaod_size = RTCPParser.parse_rtcp_sr_packet(raw_payload, header)
+        else:
+            raise ValueError("Error parsing RTCP Packet, ", header.payload_type, " is not a RTCP Payload type")
             
         packet.packet.header = header
         
@@ -163,7 +163,7 @@ class RTCPParser:
         return packet, paylaod_size
     
     @staticmethod
-    def parse_rtcp_app_packet(raw_payload: bytearray) -> RTCPAPPPacket:
+    def parse_rtcp_app_packet(raw_payload: bytearray) -> (RTCPAPPPacket, int):
         
         packet = RTCPAPPPacket()
         payload_size : int
@@ -180,7 +180,7 @@ class RTCPParser:
         return packet, payload_size
     
     @staticmethod
-    def parse_rtcp_app_data(raw_payload: bytearray):
+    def parse_rtcp_app_data(raw_payload: bytearray) -> (bytearray, int):
         
         # !!! Override this method to parse app specific data
         # return the number of octets consumed
@@ -190,7 +190,7 @@ class RTCPParser:
     
 
     @staticmethod
-    def parse_rtcp_sdes_packet(raw_payload: bytearray, header: RTCPSimpleHeader) -> RTCPSDESPacket:
+    def parse_rtcp_sdes_packet(raw_payload: bytearray, header: RTCPSimpleHeader) -> (RTCPSDESPacket, int):
 
         packet = RTCPSDESPacket()
         packet.chuncks = [RTCPSDEChunk()] * header.block_count
@@ -219,10 +219,10 @@ class RTCPParser:
                 
                 raise ValueError("RTCP SDES Chunck was too small to parse source")
             
-        return packet
+        return packet, start_of_item
                 
     @staticmethod
-    def parse_rtcp_sdes_item(raw_payload: bytearray, next_item_type: int, start_of_item: int, chunck: RTCPSDEChunk):
+    def parse_rtcp_sdes_item(raw_payload: bytearray, next_item_type: int, start_of_item: int, chunck: RTCPSDEChunk) -> (int,int):
         
         sdes_item = RTCPGenericItem()
         sdes_item.sdes_key = RTCPItemEnum._value2member_map_.get(next_item_type, None)
@@ -248,7 +248,7 @@ class RTCPParser:
         
     
     @staticmethod
-    def parse_rtcp_sr_packet(raw_payload: bytearray, header: RTCPHeader) -> RTCPSRPacket:
+    def parse_rtcp_sr_packet(raw_payload: bytearray, header: RTCPHeader) -> (RTCPSRPacket, int):
         
         packet = RTCPSRPacket()
         packet.sender_info = RTCPSRSenderInfo()
@@ -267,7 +267,7 @@ class RTCPParser:
             
             raise ValueError("RTCP Sender report packet was too small to parse ", header.block_count, "reports")
         
-        return packet
+        return packet, SENDER_INFO_SIZE + header.block_count * REPORT_BLOCK_SIZE
     
     @staticmethod
     def parse_rtcp_reports(report_data: bytearray, block_count: int) -> list[RTCPReportBlock]:
@@ -287,7 +287,7 @@ class RTCPParser:
         return reports
     
     @staticmethod
-    def parse_rtcp_rr_packet(raw_payload: bytearray, header: RTCPHeader) -> RTCPRRPacket:
+    def parse_rtcp_rr_packet(raw_payload: bytearray, header: RTCPHeader) -> (RTCPRRPacket, int):
         
         packet = RTCPRRPacket()
         

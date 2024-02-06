@@ -14,7 +14,7 @@ from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
 class SRTPListenner:
     
     @staticmethod
-    def read_incoming_srtp_packet(data: bytearray, session: SRTPSession):
+    def read_incoming_srtp_packet(data: bytearray, session: SRTPSession) -> SRTPPacket:
         
         packet = SRTPPacket()
         packet.raw_message = data
@@ -25,6 +25,10 @@ class SRTPListenner:
         else:
             # handle auth error signal
             SRTPListenner.signal_auth_error(packet, session)
+        
+        return packet
+            
+        
             
     @staticmethod
     def signal_auth_error(packet : SRTPPacket, session: SRTPSession):

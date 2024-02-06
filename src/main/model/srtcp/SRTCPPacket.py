@@ -1,6 +1,5 @@
+from main.model.rtcp.RTCPConsts import IS_ENCRYPTED_MULTIPLIER
 from main.model.rtcp.RTCPPacket import RTCPPacket
-
-IS_ENCRYPTED_MULTIPLIER = int(2**31)
 
 class SRTCPPacket(RTCPPacket):
     
