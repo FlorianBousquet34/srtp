@@ -6,10 +6,10 @@ from main.model.srtp.SRTPSession import SRTPSession
 
 class SRTPPacketHandler:
     
+    # TODO extra checks when handling srtcp compound packet (ie replay defence...)
+    
     @staticmethod
     def handle_srtcp_packet(packet: SRTCPPacket, session: SRTPSession):
-        
-        # TODO extra checks when handling srtcp compound packet
         
         RTPPacketHandler.handle_rtcp_packet(packet, session)
         
