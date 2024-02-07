@@ -32,3 +32,7 @@ class RTPParticipant:
     
     # SDES infos (includes at least CNAME)
     sdes_infos : dict[RTCPItemEnum, str]
+    
+     
+    # current roll over count for sequence number
+    roc: int = 0

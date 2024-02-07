@@ -5,7 +5,7 @@ from main.model.rtcp.RTCPSimpleHeader import RTCPSimpleHeader
 from main.model.rtcp.bye.RTCPBYEPacket import RTCPBYEPacket
 from main.model.rtcp.bye.RTCPBYEReason import RTCPBYEReason
 from main.model.rtp.RTPSession import RTPSession
-from main.scheduler.RTCPTrsIntervalComputation import RTCPTransmissionIntervalComputation
+from main.scheduler.RTCPTrsIntervalComputation import RTCPTrsIntervalComputation
 from main.sender.RTPSender import RTPSender
 from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -39,7 +39,7 @@ class RTCPBYEAlgorithm:
             session.participant.participant_state.initial = True
             session.participant.participant_state.we_send = False
             session.participant.participant_state.average_packet_size = len(compound_packet.raw_data) - 1
-            time_interval = RTCPTransmissionIntervalComputation.compute_rtcp_transmission_interval(session.participant.participant_state)
+            time_interval = RTCPTrsIntervalComputation.compute_rtcp_transmission_interval(session.participant.participant_state)
             schedule_time = datetime.timedelta(seconds=time_interval) + datetime.datetime.utcnow()
 
         # Every time a BYE packet from another participant is received,

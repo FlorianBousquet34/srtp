@@ -1,3 +1,4 @@
+from main.model.rtcp.RTCPConsts import PACKET_INDEX_COEFFICIENT, SALT_COEFFICIENT, SSRC_COEFFICIENT
 from main.model.srtp.SRTPEncryptionAlgorithmIdentifierEnum import SRTPEncryptionAlgorithmIdentifierEnum
 import os
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -14,25 +15,25 @@ class SRTPEncryptAlgorithm:
         self.srtp_prefix_length = srtp_prefix_length
         self.algorithm_identifier = algorithm_identifier
     
-    def encrypt(self, data: bytearray, session) -> bytearray:
+    def encrypt(self, data: bytearray, session, packet_index: int) -> bytearray:
         if self.algorithm_identifier == SRTPEncryptionAlgorithmIdentifierEnum.AES_COUNTER_MODE.value:
-            iv = os.urandom(self.block_cipher_size)
+            iv = int((int.from_bytes(session.session_salting_key) * SALT_COEFFICIENT) ^ (session.participant.ssrc * SSRC_COEFFICIENT) ^ (packet_index * PACKET_INDEX_COEFFICIENT)).to_bytes(16)
             cipher = Cipher(algorithms.AES(session.session_encrypt_key), modes.CTR(iv))
             encryptor = cipher.encryptor()
             ct = encryptor.update(data) + encryptor.finalize()
-            return iv + ct
+            return ct
         # Implement other encryptions algorithm
         else:
             raise ValueError("Encryption algorithm not implemented ", self.algorithm_identifier)
             
             
     
-    def decrypt(self, data: bytearray, session) -> bytearray:
+    def decrypt(self, data: bytearray, session, packet_index: int) -> bytearray:
         if self.algorithm_identifier == SRTPEncryptionAlgorithmIdentifierEnum.AES_COUNTER_MODE.value:
-            iv = data[:self.block_cipher_size]
+            iv = int((int.from_bytes(session.session_salting_key) * SALT_COEFFICIENT) ^ (session.participant.ssrc * SSRC_COEFFICIENT) ^ (packet_index * PACKET_INDEX_COEFFICIENT)).to_bytes(16)
             cipher = Cipher(algorithms.AES(session.session_encrypt_key), modes.CTR(iv))
             decryptor = cipher.decryptor()
-            plain = decryptor.update(data[self.block_cipher_size:]) + decryptor.finalize()
+            plain = decryptor.update(data) + decryptor.finalize()
             return plain
         # Implement other encryptions algorithm
         else:

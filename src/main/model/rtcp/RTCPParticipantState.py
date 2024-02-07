@@ -1,8 +1,8 @@
 from datetime import datetime
+from typing import Any
 from apscheduler.job import Job
 from main.model.rtcp.RTCPConsts import SECOND_TO_TIMESTAMP_MULTIPLIER, SEQ_NUM_BITS, SEQ_NUM_SIZE, TIMESTAMP_SIZE, TIMESTAMPS_BITS
 from main.scheduler.RTCPScheduler import RTCPScheduler
-from main.model.rtp.RTPParticipant import RTPParticipant
 from main.model.rtp.RTPSession import RTPSession
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from main.threading.UDPHandlingThread import UDPHandlingThread
@@ -15,7 +15,7 @@ class RTCPParticipantState :
     # !!! The curent time is initiated at 0
     # when the participant joins the session
     
-    def __init__(self, session: RTPSession, participant: RTPParticipant) -> None:
+    def __init__(self, session: RTPSession, participant) -> None:
         self.session = session
         self.target_bandwidth = session.profile.session_bandwidth * session.profile.control_bandwith_fraction
         self.average_packet_size = session.profile.estimated_packet_size
@@ -43,7 +43,7 @@ class RTCPParticipantState :
         
         latest_seq_num = (self.latest_seq_num + 1)
         if latest_seq_num >= SEQ_NUM_SIZE:
-            self.roc += 1
+            self.participant.roc += 1
             self.latest_seq_num = latest_seq_num % SEQ_NUM_SIZE
         else:
             self.latest_seq_num = latest_seq_num
@@ -55,7 +55,7 @@ class RTCPParticipantState :
                 + self.timestamp_offset) % TIMESTAMP_SIZE
     
     # The participant
-    participant: RTPParticipant
+    participant: Any
     
     # The Time the participant joined the session
     participant_join_time : datetime
@@ -115,6 +115,3 @@ class RTCPParticipantState :
     # Latest seq num used, incremented by one for each RTP Packet send
     # and initiation must be random
     latest_seq_num : int
-    
-    # current roll over count for sequence number
-    roc: int = 0

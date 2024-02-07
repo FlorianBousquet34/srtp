@@ -2,8 +2,10 @@ import socket
 
 class RTPSessionContext:
     
-    def __init__(self) -> None:
+    def __init__(self, packet_size: float = 32, bandwidth: float = 1e6 ) -> None:
         
+        self.estimated_packet_size = packet_size
+        self.session_bandwidth = bandwidth
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     
     # The profile (context) that define the RTP Session

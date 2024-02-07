@@ -5,7 +5,6 @@ from main.model.rtcp.RTCPCompoundPacket import RTCPCompoundPacket
 from main.model.rtcp.rr.RTCPRRPacket import RTCPRRPacket
 from main.model.rtcp.sr.RTCPSRPacket import RTCPSRPacket
 from main.model.rtp.RTPSession import RTPSession
-from main.scheduler.RTCPScheduler import RTCPScheduler
 from main.sender.RTPSender import RTPSender
 
 
@@ -13,7 +12,8 @@ class RTCPJobExecutor:
     
     @staticmethod
     def execute_rtcp_jobs(session : RTPSession):
-        
+        from main.scheduler.RTCPScheduler import RTCPScheduler
+
         # Do the computation and send an RTCP Compound packet
         # to all participants of the session
         

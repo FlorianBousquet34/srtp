@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 import unittest
 from main.model.rtp.RTPFixedHeader import RTPFixedHeader
 from main.model.rtp.RTPHeader import RTPHeader
@@ -28,13 +29,22 @@ class TestSRTPTestCase(unittest.TestCase):
         return context
     
     @staticmethod
-    def create_session(crypto_context: SRTPCryptoContext) -> SRTPSession:
+    def create_participant(ssrc: int, session: Any = None, sdes_info: dict = {}):
+            from main.model.rtp.RTPParticipant import RTPParticipant
+            participant = RTPParticipant(ssrc, sdes_info)
+            
+            return participant
+    
+    @staticmethod
+    def create_session(crypto_context: SRTPCryptoContext, ssrc: int, sdes_info: dict = {}) -> SRTPSession:
         
         session : SRTPSession = SRTPSession(None, crypto_context)
         session.session_encrypt_key = random.SystemRandom().randbytes(crypto_context.encrypt_algorithm.session_key_size // 8)
         session.session_salting_key = random.SystemRandom().randbytes(crypto_context.encrypt_algorithm.session_salt_length // 8)
         session.session_auth_key = random.SystemRandom().randbytes(crypto_context.auth_algorithm.n_a // 8)
         session.session_start = datetime.utcnow()
+        session.profile = RTPSessionContext()
+        session.participant = TestSRTPTestCase.create_participant(ssrc, session, sdes_info)
         
         return session
     
@@ -60,8 +70,8 @@ class TestSRTPTestCase(unittest.TestCase):
     def test_build_parse_packet(self):
         
         print("### Test Valid SRTP Packet ###")
-        context = TestSRTPTestCase.create_crypto_context(32, 32)
-        session = TestSRTPTestCase.create_session(context)
+        context = TestSRTPTestCase.create_crypto_context(32, 14)
+        session = TestSRTPTestCase.create_session(context, 15641574, {})
         
         csrc, payload_type, seq_num, timestamp, ssrc = ([1988265441, 541298968], 79, 37815, 781532197, 87152116)
         payload = "Hello world in a srtp packet!"
@@ -89,6 +99,7 @@ class TestSRTPTestCase(unittest.TestCase):
         self.assertEqual(parsed_packet.auth_message.rtp_packet.header.fixed_header.ssrc, ssrc)
         self.assertEqual(parsed_packet.auth_message.rtp_packet.payload.payload, payload)
         
+        session.profile.sock.close()
         print("OK")
         
     
