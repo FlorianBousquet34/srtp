@@ -7,9 +7,10 @@ class RTCPBYEReason:
         
         if self.reason is not None and self.reason != "":
             
-            _ , payload, self.length = PaddingUtils.pad_string(self.reason)
+            self.length = len(self.reason)
+            pad_count = 4 - ((self.length + 1) % 4)
         
-        return payload
+        return self.length.to_bytes() + self.reason.encode() + bytearray(pad_count)
     
     length: int
     

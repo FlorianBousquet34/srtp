@@ -1,11 +1,15 @@
+from main.model.rtcp.RTCPConsts import SMALL_HEADER_SIZE
+
+
 class RTCPSimpleHeader:
     
     def to_bytes(self) -> bytearray:
         
-        raw_header = bytearray(8)
+        raw_header = bytearray(SMALL_HEADER_SIZE)
         raw_header[0] = self.version * 64 + 32 * self.padding + self.block_count
         raw_header[1] = self.marker * 128 + self.payload_type
-        raw_header[2:4] = self.length.to_bytes(2)
+        # length is computed in RTCPPacket
+        raw_header[2:4] = int(0).to_bytes(2)
         
         return raw_header
     

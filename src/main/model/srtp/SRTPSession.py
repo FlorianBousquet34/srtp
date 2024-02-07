@@ -5,6 +5,8 @@ from expiringdict import ExpiringDict
 
 class SRTPSession(RTPSession):
     
+    # TODO Re-keying after 2^(n/2) packets encrypted
+    
     def __init__(self, profile: RTPSessionContext, crypto_context: SRTPCryptoContext) -> None:
         
         super().__init__(profile)
