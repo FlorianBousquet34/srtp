@@ -25,7 +25,7 @@ class RTCPSimpleHeader:
     
     # Block number on 5 bits
     # Report blocks or SDES chuncks count
-    block_count: int 
+    block_count: int = 0
     
     #The length of this RTCP packet in 32-bit words minus one,
     # including the header and any padding

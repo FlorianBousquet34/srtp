@@ -25,4 +25,5 @@ class RTCPSRPacket:
     reports: list[RTCPReportBlock]
     
     # A profile-specific extension may be added
-    profil_specific_data : bytearray
+    # (must be 32 bits blocks)
+    profil_specific_data : bytearray = bytearray()

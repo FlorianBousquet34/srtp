@@ -21,9 +21,9 @@ class PaddingUtils:
     def impose_chunck_padding(data: bytearray, padding_mod: int = 4, impose_octets: int = 1) -> bytearray:
         
         length = len(data) + impose_octets
-        padding_bytes = bytearray()
+        padding_bytes = bytearray(impose_octets)
         if length % padding_mod != 0:
             pad_length = padding_mod - length % padding_mod
-            padding_bytes = bytearray(pad_length)
+            padding_bytes += bytearray(pad_length)
             
         return data + padding_bytes

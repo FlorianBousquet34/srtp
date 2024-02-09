@@ -40,7 +40,7 @@ class RTCPParser:
             while start_of_packet < len(packet.raw_data):
             
                 start_of_packet = RTCPParser.parse_rtcp_packet(packet, start_of_packet)
-        
+
         else:
             raise ValueError("The RTCP Compound packet received is too small, header could not be parse.")
         
@@ -72,14 +72,14 @@ class RTCPParser:
         else:
             
             raise ValueError("The RTCP Compound block was too small to read the header")
-        
+
         return payload_size + payload_start
     
     @staticmethod
     def parse_rtcp_header(raw_header: bytearray, simple_header: RTCPSimpleHeader) -> RTCPHeader:
         
         header = RTCPHeader(simple_header)
-        header.ssrc.from_bytes(raw_header)
+        header.ssrc = int.from_bytes(raw_header)
         return header
     
     @staticmethod
@@ -91,7 +91,7 @@ class RTCPParser:
         if header.version == 2:
             
             header.length = int.from_bytes(raw_header[2:4])
-            header.padding = (raw_header[0] >> 5) & 1 != 1
+            header.padding = (raw_header[0] >> 5) & 1 != 0
             header.block_count = raw_header[0] & 0b11111
             header.payload_type = raw_header[1] >> 0 & 0b1111111
             
@@ -176,13 +176,13 @@ class RTCPParser:
         if len(raw_payload) >= 4:
             
             packet.name = raw_payload[0:4].decode()
-            packet.data, payload_size = RTCPParser.parse_rtcp_app_data(raw_payload)
+            packet.data, payload_size = RTCPParser.parse_rtcp_app_data(raw_payload[4:])
             
         else:
             
             raise ValueError("RTCP APP Packet was too small to contain name")
         
-        return packet, payload_size
+        return packet, payload_size + 4
     
     @staticmethod
     def parse_rtcp_app_data(raw_payload: bytearray) -> (bytearray, int):
@@ -198,11 +198,11 @@ class RTCPParser:
     def parse_rtcp_sdes_packet(raw_payload: bytearray, header: RTCPSimpleHeader) -> (RTCPSDESPacket, int):
 
         packet = RTCPSDESPacket()
-        packet.chuncks = [RTCPSDEChunk()] * header.block_count
+        packet.chuncks = [RTCPSDEChunk() for _ in range(header.block_count)]
         start_of_chunck = 0
         
         for chunck_num in range(header.block_count):
-            
+
             if len(raw_payload) >= start_of_chunck + SSRC_SIZE:
                 
                 packet.chuncks[chunck_num].source = int.from_bytes(raw_payload[start_of_chunck: start_of_chunck + SSRC_SIZE])
@@ -211,19 +211,21 @@ class RTCPParser:
                 next_item_type = raw_payload[start_of_item]
                 
                 while next_item_type != 0:
-                    
+
                     # end of sdes item list is marked by null octets
                     start_of_item, next_item_type = RTCPParser.parse_rtcp_sdes_item(raw_payload, next_item_type, start_of_item, packet.chuncks[chunck_num])
                     
                 # we now wait until next not null octet
-                while raw_payload[start_of_item] == 0:
+                while start_of_item < len(raw_payload) and raw_payload[start_of_item] == 0:
                     
                     start_of_item += 1
-                    
+                
+                start_of_chunck = start_of_item
+
             else:
                 
                 raise ValueError("RTCP SDES Chunck was too small to parse source")
-            
+
         return packet, start_of_item
                 
     @staticmethod
@@ -265,19 +267,19 @@ class RTCPParser:
             packet.sender_info.sender_packet_count = int.from_bytes(raw_payload[12:16])
             packet.sender_info.sender_octet_count = int.from_bytes(raw_payload[16:SENDER_INFO_SIZE])
             report_data = raw_payload[SENDER_INFO_SIZE: SENDER_INFO_SIZE + header.block_count * REPORT_BLOCK_SIZE]
-            packet.profil_specific_data = raw_payload[SENDER_INFO_SIZE + header.block_count * REPORT_BLOCK_SIZE:]
+            packet.profil_specific_data, extra_length = RTCPParser.rtcp_extract_sr_profile_specific_data(raw_payload[SENDER_INFO_SIZE + header.block_count * REPORT_BLOCK_SIZE:])
             packet.reports = RTCPParser.parse_rtcp_reports(report_data, header.block_count)
             
         else:
             
             raise ValueError("RTCP Sender report packet was too small to parse ", header.block_count, "reports")
         
-        return packet, SENDER_INFO_SIZE + header.block_count * REPORT_BLOCK_SIZE
+        return packet, SENDER_INFO_SIZE + header.block_count * REPORT_BLOCK_SIZE + extra_length
     
     @staticmethod
     def parse_rtcp_reports(report_data: bytearray, block_count: int) -> list[RTCPReportBlock]:
         
-        reports = [RTCPReportBlock()] * block_count
+        reports = [RTCPReportBlock() for _ in range(block_count)]
         
         for report_num in range(block_count):
             
@@ -299,11 +301,25 @@ class RTCPParser:
         if len(raw_payload) >= header.block_count * REPORT_BLOCK_SIZE:
             
             report_data = raw_payload[: header.block_count * REPORT_BLOCK_SIZE]
-            packet.profil_specific_data = raw_payload[header.block_count * REPORT_BLOCK_SIZE:]
+            packet.profil_specific_data, extra_length = RTCPParser.rtcp_extract_rr_profile_specific_data(raw_payload[header.block_count * REPORT_BLOCK_SIZE:])
             packet.reports = RTCPParser.parse_rtcp_reports(report_data, header.block_count)
             
         else:
             
             raise ValueError("RTCP Receiver report was too small to parse ", header.block_count," reports")
         
-        return packet
+        return packet, header.block_count * REPORT_BLOCK_SIZE + extra_length
+    
+    @staticmethod
+    def rtcp_extract_rr_profile_specific_data(data: bytearray) -> (bytearray, int):
+    
+        # !!! Override to implement profile specific data
+        
+        return bytearray(), 0
+    
+    @staticmethod
+    def rtcp_extract_sr_profile_specific_data(data: bytearray) -> (bytearray, int):
+    
+        # !!! Override to implement profile specific data
+        
+        return bytearray(), 0

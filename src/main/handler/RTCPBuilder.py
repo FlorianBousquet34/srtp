@@ -23,7 +23,7 @@ class RTCPBuilder:
         
         chunck = RTCPSDEChunk()
         chunck.source = session.participant.ssrc
-        chunck.sdes_items = [RTCPGenericItem()] * len(session.participant.sdes_infos)
+        chunck.sdes_items = [RTCPGenericItem() for _ in range(len(session.participant.sdes_infos))]
         item_num = 0
         for item_key in session.participant.sdes_infos:
             
@@ -114,7 +114,7 @@ class RTCPBuilder:
     def build_rtcp_reports(session: RTPSession) -> list[RTCPReportBlock]:
         
         source_num = 0
-        reports = [RTCPReportBlock()] * min(REPORT_BLOCK_LIMIT, len(session.lastest_received))
+        reports = [RTCPReportBlock() for _ in range(min(REPORT_BLOCK_LIMIT, len(session.lastest_received)))]
         randomize_key = False
         if len(reports) == REPORT_BLOCK_LIMIT:
             randomize_key = True

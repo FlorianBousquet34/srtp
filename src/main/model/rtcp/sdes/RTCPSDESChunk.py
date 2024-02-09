@@ -10,9 +10,9 @@ class RTCPSDEChunk:
         
         for sdes_index in range(len(self.sdes_items)):
             
-            raw_items.append(self.sdes_items[sdes_index].to_bytes())
+            raw_items += self.sdes_items[sdes_index].to_bytes()
         
-        return self.source.to_bytes(4) + raw_items + PaddingUtils.impose_chunck_padding(raw_items)
+        return self.source.to_bytes(4) + PaddingUtils.impose_chunck_padding(raw_items)
     
     # ssrc or csrc
     # synchronised source or contribution source

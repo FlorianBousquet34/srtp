@@ -12,6 +12,7 @@ class RTCPRRPacket:
         for report_index in range(len(self.reports)):
             
             raw_reports_block[report_index * REPORT_BLOCK_SIZE: (report_index + 1) * REPORT_BLOCK_SIZE] = self.reports[report_index].to_bytes()
+            
         
         return self.header.to_bytes() + raw_reports_block + self.profil_specific_data
     
@@ -22,4 +23,5 @@ class RTCPRRPacket:
     reports: list[RTCPReportBlock]
     
     # A profile-specific extension may be added
-    profil_specific_data : bytearray
+    # (must be 32 bits blocks)
+    profil_specific_data : bytearray = bytearray()

@@ -5,7 +5,9 @@ class RTCPGenericItem:
     
     def to_bytes(self) -> bytearray:
         
-        return self.sdes_key.value.to_bytes() + self.length.to_bytes() + self.sdes_value.encode()
+        value_bytes = self.sdes_value.encode()
+        self.length = len(value_bytes)
+        return self.sdes_key.value.to_bytes() + self.length.to_bytes() + value_bytes
     
     # On 8 bits
     sdes_key : RTCPItemEnum

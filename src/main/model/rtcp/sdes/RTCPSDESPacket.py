@@ -9,8 +9,8 @@ class RTCPSDESPacket:
         raw_chuncks = bytearray()
         for chunk_index in range(len(self.chuncks)):
             
-            raw_chuncks.append(self.chuncks[chunk_index].to_bytes())
-            
+            raw_chuncks += self.chuncks[chunk_index].to_bytes()
+        
         return self.header.to_bytes() + raw_chuncks
     
     header : RTCPSimpleHeader
