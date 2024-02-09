@@ -69,7 +69,6 @@ class TestSRTPTestCase(unittest.TestCase):
     
     def test_build_parse_packet(self):
         
-        print("### Test Valid SRTP Packet ###")
         context = TestSRTPTestCase.create_crypto_context(32, 14)
         session = TestSRTPTestCase.create_session(context, 15641574, {})
         
@@ -100,7 +99,6 @@ class TestSRTPTestCase(unittest.TestCase):
         self.assertEqual(parsed_packet.auth_message.rtp_packet.payload.payload, payload)
         
         session.profile.sock.close()
-        print("OK")
         
     
 if(__name__ == '__main__'):

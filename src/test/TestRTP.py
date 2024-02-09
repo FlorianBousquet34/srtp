@@ -29,18 +29,15 @@ class TestRTPTestCase(unittest.TestCase):
         
     def test_build_packet(self):
         
-        print("### Test to bytes RTP Packet ###")
         csrc, payload_type, seq_num, timestamp, ssrc = ([1988265441, 541298968], 79, 37815, 781532197, 87152116)
         payload = "Hello world in a rtp packet"
         packet : RTPPacket = TestRTPTestCase.create_packet(csrc, payload_type, seq_num, timestamp, ssrc, payload)
         packet.to_bytes()
         self.assertEqual(len(packet.raw_data) % 4, 0)
         self.assertEqual(bytearray(b'\xa2O\x93\xb7.\x95<%\x051\xd5\xf4v\x82\x85\xe1 C\x91\x18Hello world in a rtp packet\x01'), packet.raw_data)
-        print("OK")
         
     def test_parse_packet(self):
         
-        print("### Test parsing RTP Packet ###")
         csrc, payload_type, seq_num, timestamp, ssrc = ([random.randint(0,2**32 - 1), random.randint(0,2**32 - 1)], random.randint(0,2**7 - 1),
                                                         random.randint(0,2**16 - 1), random.randint(0,2**32 - 1), random.randint(0,2**32 - 1))
         payload = "Hello world in a rtp packet Hello world in a rtp packet Hello world in a rtp packet Hello world in a rtp packet"
@@ -63,7 +60,6 @@ class TestRTPTestCase(unittest.TestCase):
         self.assertFalse(parsed_packet.header.fixed_header.marker)
         self.assertEqual(parsed_packet.header.fixed_header.ssrc, ssrc)
         self.assertEqual(parsed_packet.payload.payload, payload)
-        print("OK")
     
 
 if(__name__ == '__main__'):

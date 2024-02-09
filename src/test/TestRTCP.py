@@ -115,7 +115,6 @@ class TestRTCPTestCase(unittest.TestCase):
     
     def test_build_parse_bye_packet(self):
         
-        print("### Test parse BYE Packet ###")
         bye_packet = TestRTCPTestCase.create_bye_packet()
         packet = RTCPPacket()
         packet.packet = bye_packet
@@ -134,11 +133,9 @@ class TestRTCPTestCase(unittest.TestCase):
         self.assertEqual(parsed_bye_packet.header.payload_type, RTPPayloadTypeEnum.RTCP_BYE.value)
         self.assertTrue(parsed_bye_packet.header.marker)
         
-        print("OK")
         
     def test_build_parse_app_packet(self):
         
-        print("### Test build APP Packet ###")
         app_packet = TestRTCPTestCase.create_app_packet()
         packet = RTCPPacket()
         packet.packet = app_packet
@@ -157,11 +154,9 @@ class TestRTCPTestCase(unittest.TestCase):
         self.assertEqual(app_packet.name, parsed_app_packet.name)
         self.assertEqual(app_packet.data, parsed_app_packet.data)
         
-        print("OK")
         
     def test_build_parse_sdes_packet(self):
         
-        print("### Test build SDES Packet ###")
         sdes_packet = TestRTCPTestCase.create_sdes_packet()
         packet = RTCPPacket()
         packet.packet = sdes_packet
@@ -188,11 +183,9 @@ class TestRTCPTestCase(unittest.TestCase):
             self.assertEqual(ck.sdes_items[1].sdes_value, sdes_packet.chuncks[i_ck].sdes_items[1].sdes_value)
             self.assertEqual(ck.sdes_items[2].sdes_value, sdes_packet.chuncks[i_ck].sdes_items[2].sdes_value)
         
-        print("OK")
         
     def test_build_parse_rr_packet(self):
         
-        print("### Test build RR Packet ###")
         rr_packet = TestRTCPTestCase.create_rr_packet()
         packet = RTCPPacket()
         packet.packet = rr_packet
@@ -219,11 +212,9 @@ class TestRTCPTestCase(unittest.TestCase):
             self.assertEqual(rb.delay_last_sr, org_rb.delay_last_sr)
             self.assertEqual(rb.cumul_packet_lost, org_rb.cumul_packet_lost)
             
-        print("OK")
         
     def test_build_parse_sr_packet(self):
         
-        print("### Test build SR Packet ###")
         sr_packet = TestRTCPTestCase.create_sr_packet()
         packet = RTCPPacket()
         packet.packet = sr_packet
@@ -254,7 +245,6 @@ class TestRTCPTestCase(unittest.TestCase):
             self.assertEqual(rb.delay_last_sr, org_rb.delay_last_sr)
             self.assertEqual(rb.cumul_packet_lost, org_rb.cumul_packet_lost)
             
-        print("OK")
 
 if(__name__ == '__main__'):
     unittest.main()
