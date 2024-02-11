@@ -1,3 +1,4 @@
+from typing import Tuple
 from main.model.rtcp.RTCPCompoundPacket import RTCPCompoundPacket
 from main.model.rtcp.RTCPConsts import HEADER_SIZE, REPORT_BLOCK_SIZE, SENDER_INFO_SIZE, SMALL_HEADER_SIZE, SSRC_SIZE
 from main.model.rtcp.RTCPHeader import RTCPHeader
@@ -101,7 +102,7 @@ class RTCPParser:
         return header
     
     @staticmethod
-    def parse_rtcp_payload(raw_payload: bytearray, header: (RTCPHeader | RTCPSimpleHeader)) -> (RTCPPacket, int):
+    def parse_rtcp_payload(raw_payload: bytearray, header: (RTCPHeader | RTCPSimpleHeader)) -> Tuple[RTCPPacket, int]:
         
         paylaod_size : int
         packet : (RTCPSRPacket | RTCPRRPacket | RTCPBYEPacket | RTCPSDESPacket | RTCPAPPPacket)
@@ -134,7 +135,7 @@ class RTCPParser:
         return (rtcp_packet, paylaod_size)
     
     @staticmethod
-    def parse_rtcp_bye_packet(raw_payload: bytearray, header: RTCPSimpleHeader) -> (RTCPBYEPacket, int):
+    def parse_rtcp_bye_packet(raw_payload: bytearray, header: RTCPSimpleHeader) -> Tuple[RTCPBYEPacket, int]:
 
         packet = RTCPBYEPacket()
         paylaod_size: int
@@ -168,7 +169,7 @@ class RTCPParser:
         return packet, paylaod_size
     
     @staticmethod
-    def parse_rtcp_app_packet(raw_payload: bytearray) -> (RTCPAPPPacket, int):
+    def parse_rtcp_app_packet(raw_payload: bytearray) -> Tuple[RTCPAPPPacket, int]:
         
         packet = RTCPAPPPacket()
         payload_size : int
@@ -185,7 +186,7 @@ class RTCPParser:
         return packet, payload_size + 4
     
     @staticmethod
-    def parse_rtcp_app_data(raw_payload: bytearray) -> (bytearray, int):
+    def parse_rtcp_app_data(raw_payload: bytearray) -> Tuple[bytearray, int]:
         
         # !!! Override this method to parse app specific data
         # return the number of octets consumed
@@ -195,12 +196,12 @@ class RTCPParser:
     
 
     @staticmethod
-    def parse_rtcp_sdes_packet(raw_payload: bytearray, header: RTCPSimpleHeader) -> (RTCPSDESPacket, int):
+    def parse_rtcp_sdes_packet(raw_payload: bytearray, header: RTCPSimpleHeader) -> Tuple[RTCPSDESPacket, int]:
 
         packet = RTCPSDESPacket()
         packet.chuncks = [RTCPSDEChunk() for _ in range(header.block_count)]
         start_of_chunck = 0
-        
+        start_of_item = 0
         for chunck_num in range(header.block_count):
 
             if len(raw_payload) >= start_of_chunck + SSRC_SIZE:
@@ -220,6 +221,10 @@ class RTCPParser:
                     
                     start_of_item += 1
                 
+                # ssrc may start with zeros bytes
+                if start_of_item % 4 != 0:
+                    start_of_item -= start_of_item % 4
+                    
                 start_of_chunck = start_of_item
 
             else:
@@ -229,7 +234,7 @@ class RTCPParser:
         return packet, start_of_item
                 
     @staticmethod
-    def parse_rtcp_sdes_item(raw_payload: bytearray, next_item_type: int, start_of_item: int, chunck: RTCPSDEChunk) -> (int,int):
+    def parse_rtcp_sdes_item(raw_payload: bytearray, next_item_type: int, start_of_item: int, chunck: RTCPSDEChunk) -> Tuple[int,int]:
         
         sdes_item = RTCPGenericItem()
         sdes_item.sdes_key = RTCPItemEnum._value2member_map_.get(next_item_type, None)
@@ -255,7 +260,7 @@ class RTCPParser:
         
     
     @staticmethod
-    def parse_rtcp_sr_packet(raw_payload: bytearray, header: RTCPHeader) -> (RTCPSRPacket, int):
+    def parse_rtcp_sr_packet(raw_payload: bytearray, header: RTCPHeader) -> Tuple[RTCPSRPacket, int]:
         
         packet = RTCPSRPacket()
         packet.sender_info = RTCPSRSenderInfo()
@@ -294,7 +299,7 @@ class RTCPParser:
         return reports
     
     @staticmethod
-    def parse_rtcp_rr_packet(raw_payload: bytearray, header: RTCPHeader) -> (RTCPRRPacket, int):
+    def parse_rtcp_rr_packet(raw_payload: bytearray, header: RTCPHeader) -> Tuple[RTCPRRPacket, int]:
         
         packet = RTCPRRPacket()
         
@@ -311,14 +316,14 @@ class RTCPParser:
         return packet, header.block_count * REPORT_BLOCK_SIZE + extra_length
     
     @staticmethod
-    def rtcp_extract_rr_profile_specific_data(data: bytearray) -> (bytearray, int):
+    def rtcp_extract_rr_profile_specific_data(data: bytearray) -> Tuple[bytearray, int]:
     
         # !!! Override to implement profile specific data
         
         return bytearray(), 0
     
     @staticmethod
-    def rtcp_extract_sr_profile_specific_data(data: bytearray) -> (bytearray, int):
+    def rtcp_extract_sr_profile_specific_data(data: bytearray) -> Tuple[bytearray, int]:
     
         # !!! Override to implement profile specific data
         
