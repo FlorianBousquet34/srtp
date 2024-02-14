@@ -92,12 +92,13 @@ class RTPPacketHandler:
     @staticmethod
     def handle_rtcp_bye_packet(packet : RTCPPacket, session: RTPSession):
         
-         # Handle a BYE Packet received from another user
-         # Remove the user from session members table
+        # Handle a BYE Packet received from another user
+        # Remove the user from session members table
+        
+        for ssrc in packet.packet.sources:
+            session.mark_bye_event(ssrc)
          
-         session.mark_bye_event(packet.packet.header.ssrc)
-         
-         RTCPReverseAlgorithm.apply_rtcp_reverse_algorithm(session)
+        RTCPReverseAlgorithm.apply_rtcp_reverse_algorithm(session)
          
           
          
