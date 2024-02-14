@@ -7,6 +7,10 @@ from main.model.rtcp.sr.RTCPSRPacket import RTCPSRPacket
 
 class RTCPPacket:
     
+    def __init__(self, packet : RTCPSRPacket | RTCPRRPacket | RTCPBYEPacket | RTCPSDESPacket | RTCPAPPPacket = None) -> None:
+        
+        self.packet = packet
+        
     packet: RTCPSRPacket | RTCPRRPacket | RTCPBYEPacket | RTCPSDESPacket | RTCPAPPPacket
     
     raw_data: bytearray

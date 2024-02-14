@@ -1,6 +1,7 @@
 import datetime
+from main.executor.RTCPJobExecutor import RTCPJobExecutor
 from main.model.rtp.RTPSession import RTPSession
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
 class RTCPReverseAlgorithm:
     
@@ -21,16 +22,17 @@ class RTCPReverseAlgorithm:
 
         # The next RTCP packet is rescheduled for transmission at time tn,
         # which is now earlier.
-        rtcp_scheduler : AsyncIOScheduler = session.participant.participant_state.rtcp_scheduler
+        rtcp_scheduler : BackgroundScheduler = session.participant.participant_state.rtcp_scheduler
         
         if session.participant.participant_state.rtcp_job is not None:
             
             time_interval = session.participant.participant_state.tn - (
                 datetime.datetime.utcnow() - session.participant.participant_state.participant_join_time).total_seconds()
             
-            job_schedule_time = datetime.timedelta(seconds=time_interval) + datetime.datetime.utcnow()
+            job_schedule_time = datetime.timedelta(seconds=time_interval) + datetime.datetime.now()
             
-            rtcp_scheduler.reschedule_job(session.participant.participant_state.rtcp_job.id, 'date', job_schedule_time)
+            rtcp_scheduler.remove_job(session.participant.participant_state.rtcp_job.id)
+            rtcp_scheduler.add_job(RTCPJobExecutor.execute_rtcp_jobs, trigger='date', next_run_time=job_schedule_time, args=[session])
 
         # The value of pmembers is set equal to members.
         session.participant.participant_state.pmembers = session.participant.participant_state.members

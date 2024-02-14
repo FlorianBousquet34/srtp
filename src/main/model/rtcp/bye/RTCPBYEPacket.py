@@ -24,4 +24,4 @@ class RTCPBYEPacket:
     sources : list[int]
     
     # opt reason of leaving
-    reason : RTCPBYEReason | None
+    reason : RTCPBYEReason | None = None

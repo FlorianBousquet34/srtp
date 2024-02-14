@@ -1,9 +1,10 @@
 import datetime
+import socket
 from typing import Any
 from main.model.rtcp.RTCPConsts import DELETION_DELAY, JITTER_MULTIPLIER, NTP_TIMESTAMP_MULTIPLIER, RECEIVER_INACTIVITY_INTERVAL_COUNT, SENDER_INACTIVITY_INTERVAL_COUNT
 from main.model.rtcp.sdes.items.RTCPItemEnum import RTCPItemEnum
 from main.model.rtp.RTPPacket import RTPPacket
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from main.model.rtp.RTPSessionContext import RTPSessionContext
 
@@ -12,7 +13,8 @@ class RTPSession:
     def __init__(self, profile: RTPSessionContext) -> None:
         self.latest_rtcp_timer = []
         self.profile = profile
-    
+        self.session_start = datetime.datetime.utcnow()
+        
     def participant_validation(self, ssrc) -> bool:
         
         # Participant validation is based on SDES RTCP Packet containing a CNAME
@@ -37,12 +39,9 @@ class RTPSession:
         found = self.session_members.get(ssrc, None)
         if found:
             found.is_leaving = True
-            if self.leave_scheduler is None:
-                self.leave_scheduler = AsyncIOScheduler()
-                self.leave_scheduler.start()
-            scheduler : AsyncIOScheduler = self.leave_scheduler
-            scheduler.add_job(self.remove_from_session(ssrc), 'date', datetime.datetime(second=DELETION_DELAY) 
-                                + datetime.datetime.utcnow(), id=ssrc)
+            scheduler : BackgroundScheduler = self.leave_scheduler
+            scheduler.add_job(self.remove_from_session, trigger='date', next_run_time=datetime.datetime(second=DELETION_DELAY) 
+                                + datetime.datetime.now(), id=ssrc, args=[ssrc])
     
     def remove_from_session(self, ssrc: int):
         
@@ -60,6 +59,8 @@ class RTPSession:
         # Add the ssrc to the session members
         if participant is None:
             self.session_members[ssrc] = RTPParticipant(ssrc)
+        else:
+            self.session_members[ssrc] = participant
         self.inactive_tracker[ssrc] = datetime.datetime.utcnow()
         self.session_members[ssrc].is_validated = True
     
@@ -74,10 +75,13 @@ class RTPSession:
             
         # Check if we have to remove senders
         if len(self.latest_rtcp_timer) >= SENDER_INACTIVITY_INTERVAL_COUNT:
+            senders_to_remove = []
             for sender in self.senders:
                 self.latest_rtcp_timer.sort(reverse=True)
                 if self.inactive_tracker[sender] < self.latest_rtcp_timer[1]:
-                    self.senders.pop(sender, None)
+                    senders_to_remove.append(sender)
+            for sender in senders_to_remove:
+                self.senders.pop(sender, None)
                 
     def set_inactive(self, ssrc: int):
         
@@ -142,6 +146,17 @@ class RTPSession:
             self.seq_num_roll[ssrc] = 1
         else:
             self.seq_num_roll[ssrc] += 1
+    
+    def quit_session(self):
+        from main.model.rtcp.RTCPParticipantState import RTCPParticipantState
+        
+        # interrupt threads
+        state : RTCPParticipantState = self.participant.participant_state
+        state.handling_thread.interrupt = True
+        state.listenning_thread.interrupt = True
+        self.profile.sock.shutdown(socket.SHUT_RDWR)
+        self.profile.sock.close()
+        
             
     # The RTPSession Profile
     profile: RTPSessionContext
@@ -166,7 +181,7 @@ class RTPSession:
     average_packet_size: float
     
     # Leave scheduler
-    leave_scheduler : AsyncIOScheduler
+    leave_scheduler : BackgroundScheduler
     
     # Unvalidated packet received
     invalidated_members : dict[int, int] = {}

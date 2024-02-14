@@ -42,7 +42,6 @@ class TestSRTPTestCase(unittest.TestCase):
         session.session_encrypt_key = random.SystemRandom().randbytes(crypto_context.encrypt_algorithm.session_key_size // 8)
         session.session_salting_key = random.SystemRandom().randbytes(crypto_context.encrypt_algorithm.session_salt_length // 8)
         session.session_auth_key = random.SystemRandom().randbytes(crypto_context.auth_algorithm.n_a // 8)
-        session.session_start = datetime.utcnow()
         session.profile = RTPSessionContext()
         session.participant = TestSRTPTestCase.create_participant(ssrc, session, sdes_info)
         

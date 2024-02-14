@@ -47,7 +47,7 @@ class SRTPListenner:
             if data[0] >> 6 & 0b11 == 2:
                 
                 # it is rtp
-                if (data[1] >> 7) & 1 != 0 and data & 0b1111111 in RTPPayloadTypeEnum.__members__.values():
+                if (data[1] >> 7) & 1 != 0 and data[1] & 0b1111111 in RTPPayloadTypeEnum._value2member_map_.keys():
                     
                     # it is a rtcp compound packet
                     packet = SRTCPCompoundPacket(data)

@@ -2,7 +2,7 @@
 import datetime
 from main.executor.RTCPJobExecutor import RTCPJobExecutor
 from main.scheduler.RTCPTrsIntervalComputation import RTCPTrsIntervalComputation
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
 class RTCPScheduler:
     
@@ -13,11 +13,8 @@ class RTCPScheduler:
         state.refresh()
         time_interval = RTCPTrsIntervalComputation.compute_rtcp_transmission_interval(state)
         state.tn = time_interval + (datetime.datetime.utcnow() - state.participant_join_time).total_seconds()
-        job_schedule_time = datetime.timedelta(seconds=time_interval) + datetime.datetime.utcnow()
-        if state.rtcp_scheduler is None:
-            state.rtcp_scheduler = AsyncIOScheduler()
+        job_schedule_time = datetime.timedelta(seconds=time_interval) + datetime.datetime.now()
         
-        if state.rtcp_scheduler.state == 0:
-            state.rtcp_scheduler.start()
-            
-        state.rtcp_job = state.rtcp_scheduler.add_job(RTCPJobExecutor.execute_rtcp_jobs(state.session), "date", job_schedule_time)
+        scheduler : BackgroundScheduler = state.rtcp_scheduler
+        
+        state.rtcp_job = scheduler.add_job(RTCPJobExecutor.execute_rtcp_jobs, trigger="date", next_run_time=job_schedule_time, args=[state.session])

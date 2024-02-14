@@ -1,14 +1,17 @@
 import datetime
+from main.handler.RTCPBuilder import RTCPBuilder
 from main.model.rtcp.RTCPCompoundPacket import RTCPCompoundPacket
-from main.model.rtcp.RTCPHeader import RTCPHeader
+from main.model.rtcp.RTCPPacket import RTCPPacket
 from main.model.rtcp.RTCPSimpleHeader import RTCPSimpleHeader
 from main.model.rtcp.bye.RTCPBYEPacket import RTCPBYEPacket
 from main.model.rtcp.bye.RTCPBYEReason import RTCPBYEReason
+from main.model.rtcp.rr.RTCPRRPacket import RTCPRRPacket
+from main.model.rtcp.sr.RTCPSRPacket import RTCPSRPacket
 from main.model.rtp.RTPSession import RTPSession
 from main.scheduler.RTCPTrsIntervalComputation import RTCPTrsIntervalComputation
 from main.sender.RTPSender import RTPSender
 from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 
 SESSION_MEMBERS_THRESHOLD : int = 50
 
@@ -18,8 +21,14 @@ class RTCPBYEAlgorithm:
     def execute_bye_algorithm(session: RTPSession):
         
         bye_packet = RTCPBYEAlgorithm.create_rtcp_bye_packet(session)
+        sdes = RTCPBuilder.build_sdes_packet(session)
+        report_packets : list[RTCPRRPacket | RTCPSRPacket]
+        if session.senders.get(session.participant.ssrc, None) is None:
+            report_packets = RTCPBuilder.build_rr_packet(session)
+        else:
+            report_packets = RTCPBuilder.build_sr_packet(session)
         compound_packet = RTCPCompoundPacket()
-        compound_packet.packets = [bye_packet]
+        compound_packet.packets = [RTCPPacket(sdes)] + [RTCPPacket(bye_packet)] + [RTCPPacket(p) for p in report_packets]
         compound_packet.to_bytes()
 
         # https://datatracker.ietf.org/doc/html/rfc3550#section-6.3.7
@@ -40,7 +49,7 @@ class RTCPBYEAlgorithm:
             session.participant.participant_state.we_send = False
             session.participant.participant_state.average_packet_size = len(compound_packet.raw_data) - 1
             time_interval = RTCPTrsIntervalComputation.compute_rtcp_transmission_interval(session.participant.participant_state)
-            schedule_time = datetime.timedelta(seconds=time_interval) + datetime.datetime.utcnow()
+            schedule_time = datetime.timedelta(seconds=time_interval) + datetime.datetime.now()
 
         # Every time a BYE packet from another participant is received,
         # members is incremented by 1 regardless of whether that participant
@@ -55,17 +64,17 @@ class RTCPBYEAlgorithm:
         # transmitting a regular RTCP packet, as above.
         
             session.waiting_to_leave_50 = True
-            rtcp_scheduler : AsyncIOScheduler = session.participant.participant_state.rtcp_scheduler
+            rtcp_scheduler : BackgroundScheduler = session.participant.participant_state.rtcp_scheduler
             
             if session.participant.participant_state.rtcp_job:
                 rtcp_scheduler.remove_job(session.participant.participant_state.rtcp_job.id)
             
             session.participant.participant_state.bye_job = rtcp_scheduler.add_job(
-                RTPSender.send_packet(compound_packet.raw_data, session), 'date', schedule_time)
+                RTPSender.send_bye_packet, trigger='date', next_run_time=schedule_time, args=[compound_packet, session])
         
         else:
             
-            RTPSender.send_packet(compound_packet, session)
+            RTPSender.send_bye_packet(compound_packet, session)
         
     @staticmethod
     def create_rtcp_bye_packet(session: RTPSession, reason: str | None = None) -> RTCPBYEPacket:

@@ -1,4 +1,5 @@
 from main.model.rtcp.RTCPCompoundPacket import RTCPCompoundPacket
+from main.model.rtcp.RTCPHeader import RTCPHeader
 from main.model.rtcp.sdes.items.RTCPItemEnum import RTCPItemEnum
 from main.model.rtp.RTPPacket import RTPPacket
 from main.model.rtp.RTPSession import RTPSession
@@ -8,12 +9,26 @@ from main.utils.transformer.CNAMETransformer import CNAMETransformer
 class RTPSender:
     
     @staticmethod
+    def send_bye_packet(packet: RTPPacket | RTCPCompoundPacket, session: RTPSession):
+        
+        RTPSender.send_packet(packet, session)
+        session.quit_session()
+        
+        
+    @staticmethod
     def send_packet(packet: RTPPacket | RTCPCompoundPacket, session: RTPSession):
+
         ssrc : int
         if isinstance(packet, RTPPacket):
             ssrc = packet.header.fixed_header.ssrc
         else:
-            ssrc = packet.packets[0].packet.header.ssrc
+            i = 0
+            while i < len(packet.packets) and not isinstance(packet.packets[i].packet.header, RTCPHeader):
+                i += 1
+            if not isinstance(packet.packets[i].packet.header, RTCPHeader):
+                raise ValueError("No target ssrc found in RTCP Compound packet")
+            else:
+                ssrc = packet.packets[i].packet.header.ssrc
             
         if ( session.sdes_info.get(ssrc, None) and 
                 session.sdes_info[ssrc].get(RTCPItemEnum.CNAME.value, None) is not None ):

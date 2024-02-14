@@ -237,10 +237,11 @@ class RTCPParser:
     def parse_rtcp_sdes_item(raw_payload: bytearray, next_item_type: int, start_of_item: int, chunck: RTCPSDEChunk) -> Tuple[int,int]:
         
         sdes_item = RTCPGenericItem()
-        sdes_item.sdes_key = RTCPItemEnum._value2member_map_.get(next_item_type, None)
+        sdes_key_enum = RTCPItemEnum._value2member_map_.get(next_item_type, None)
         
-        if sdes_item.sdes_key is not None:
+        if sdes_key_enum is not None:
             
+            sdes_item.sdes_key = sdes_key_enum.value
             sdes_item.length = raw_payload[start_of_item + 1]
             
             if len(raw_payload) >= start_of_item + 2 + sdes_item.length:

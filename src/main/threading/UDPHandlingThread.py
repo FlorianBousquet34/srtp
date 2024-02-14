@@ -31,7 +31,7 @@ class UDPHandlingThread(threading.Thread):
             if(len(self.msg_queue) > 0):
                 
                 self.lock()
-                to_handle : list[str] = self.add_message_to_handle()
+                to_handle : list[bytearray] = self.add_message_to_handle()
                 self.unlock()
                 
                 for message in to_handle:
@@ -46,20 +46,20 @@ class UDPHandlingThread(threading.Thread):
                 
                 sleep(self.session.profile.lock_wait_time)
             
-    def remove_handled_message(self, handled: list[str]):
+    def remove_handled_message(self, handled: list[bytearray]):
         
         for msg in handled:
             self.msg_queue.remove(msg)
             
-    def add_message_to_handle(self) -> list[str]:
+    def add_message_to_handle(self) -> list[bytearray]:
         
-        result : list[str] = []
+        result : list[bytearray] = []
         for msg in self.msg_queue:
             result.append(msg)
             
         return result
     
-    def handle_message(self, packet: str):
+    def handle_message(self, packet: bytearray):
         
         if isinstance(self.session, RTPSession):
                     
@@ -72,7 +72,7 @@ class UDPHandlingThread(threading.Thread):
     
     queue_lock : bool = False
     
-    msg_queue : list[str] = []
+    msg_queue : list[bytearray] = []
     
     interrupt: bool = False
     

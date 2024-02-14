@@ -1,7 +1,10 @@
+from typing import Tuple
+
+
 class CNAMETransformer:
     
     @staticmethod
-    def transform_cname(cname: str) -> (str, int):
+    def transform_cname(cname: str) -> Tuple[str, int]:
         # !!! Override this method for other cname formats
         # parsing of cname that should be formated 'user@host:port'
         # or host:port

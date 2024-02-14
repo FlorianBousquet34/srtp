@@ -78,19 +78,21 @@ class RTCPBuilder:
         info.rtp_timestamp = session.participant.participant_state.get_rtp_timestamp()
         info.sender_packet_count = len(session.latest_sent)
         info.sender_octet_count = RTCPBuilder.compute_rtp_octet_count(session.latest_sent)
+        
+        return info
     
     @staticmethod
-    def build_rtcp_profile_specific_data(session : RTPSession, is_sender: bool):
+    def build_rtcp_profile_specific_data(session : RTPSession, is_sender: bool) -> bytearray:
         
         # !!! Overide this method to build specific profile data
         
-        pass
+        return bytearray()
     
     @staticmethod
     def build_header(session: RTPSession, payload_type: RTPPayloadTypeEnum) -> RTCPHeader:
         
-        header = RTCPHeader()
-        header.payload_type = payload_type.value
+        simple_header = RTCPBuilder.build_simple_header(payload_type)
+        header = RTCPHeader(simple_header)
         header.ssrc = session.participant.ssrc
         header.block_count = 1
         
@@ -102,6 +104,7 @@ class RTCPBuilder:
         header = RTCPSimpleHeader()
         header.payload_type = payload_type.value
         header.block_count = 1
+        header.length = 0
         
         return header
     
@@ -146,7 +149,7 @@ class RTCPBuilder:
         return reports
     
     @staticmethod
-    def compute_rapport_loss(packets: list[RTPPacket], session : RTPSession, report: RTCPReportBlock) -> int:
+    def compute_rapport_loss(packets: list[RTPPacket], session : RTPSession, report: RTCPReportBlock):
         
         max_seq_num = max([packet.header.fixed_header.sequence_number for packet in packets])
         min_seq_num = min([[packet.header.fixed_header.sequence_number for packet in packets]])

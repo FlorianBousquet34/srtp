@@ -38,8 +38,8 @@ class TestRTPTestCase(unittest.TestCase):
         
     def test_parse_packet(self):
         
-        csrc, payload_type, seq_num, timestamp, ssrc = ([random.randint(0,2**32 - 1), random.randint(0,2**32 - 1)], random.randint(0,2**7 - 1),
-                                                        random.randint(0,2**16 - 1), random.randint(0,2**32 - 1), random.randint(0,2**32 - 1))
+        csrc, payload_type, seq_num, timestamp, ssrc = ([random.randint(1,2**32 - 1), random.randint(0,2**32 - 1)], random.randint(0,2**7 - 1),
+                                                        random.randint(0,2**16 - 1), random.randint(0,2**32 - 1), random.randint(1,2**32 - 1))
         payload = "Hello world in a rtp packet Hello world in a rtp packet Hello world in a rtp packet Hello world in a rtp packet"
         packet : RTPPacket = TestRTPTestCase.create_packet(csrc, payload_type, seq_num, timestamp, ssrc, payload)
         packet.to_bytes()

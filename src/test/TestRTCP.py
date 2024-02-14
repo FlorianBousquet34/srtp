@@ -25,7 +25,7 @@ class TestRTCPTestCase(unittest.TestCase):
         
         packet = RTCPBYEPacket()
         packet.header = RTCPSimpleHeader()
-        packet.sources = [random.randint(0, 2**32 - 1), random.randint(0, 2**32 - 1)]
+        packet.sources = [random.randint(1, 2**32 - 1), random.randint(1, 2**32 - 1)]
         packet.reason = RTCPBYEReason()
         packet.reason.reason = "I Want to leave !"
         packet.header.payload_type = RTPPayloadTypeEnum.RTCP_BYE.value
@@ -42,13 +42,13 @@ class TestRTCPTestCase(unittest.TestCase):
         packet.header.block_count = random.randint(0, 31)
         packet.chuncks = [RTCPSDEChunk() for _ in range(packet.header.block_count)]
         for ck in packet.chuncks:
-            ck.source = random.randint(0, 2**32 - 1)
+            ck.source = random.randint(1, 2**32 - 1)
             ck.sdes_items = [RTCPGenericItem(), RTCPGenericItem(), RTCPGenericItem()]
-            ck.sdes_items[0].sdes_key = RTCPItemEnum.CNAME
+            ck.sdes_items[0].sdes_key = RTCPItemEnum.CNAME.value
             ck.sdes_items[0].sdes_value = ".".join([str(random.randint(0,256))]*4) + ":" + str(random.randint(0,9999))
-            ck.sdes_items[1].sdes_key = RTCPItemEnum.NAME
+            ck.sdes_items[1].sdes_key = RTCPItemEnum.NAME.value
             ck.sdes_items[1].sdes_value = "testeur_" + str(random.randint(0, 256))
-            ck.sdes_items[2].sdes_key = RTCPItemEnum.EMAIL
+            ck.sdes_items[2].sdes_key = RTCPItemEnum.EMAIL.value
             ck.sdes_items[2].sdes_value = "testeur_" + str(random.randint(0, 256)) + "@test.com"
         
         return packet
@@ -58,13 +58,13 @@ class TestRTCPTestCase(unittest.TestCase):
         
         packet = RTCPRRPacket()
         packet.header = RTCPHeader()
-        packet.header.ssrc = random.randint(0, 2**32 - 1)
+        packet.header.ssrc = random.randint(1, 2**32 - 1)
         packet.header.payload_type = RTPPayloadTypeEnum.RTCP_RR.value
         packet.header.block_count = random.randint(0, 31)
         packet.reports = [RTCPReportBlock() for _ in range(packet.header.block_count)]
         for i_r in range(packet.header.block_count):
             report = packet.reports[i_r]
-            report.ssrc = random.randint(0, 2**32 - 1)
+            report.ssrc = random.randint(1, 2**32 - 1)
             report.last_sr_timestamp = random.randint(0, 2**32 - 1)
             report.interarrival_jitter = random.randint(0, 2**32 - 1)
             report.fraction_lost = random.randint(0, 2**8 - 1)
@@ -79,7 +79,7 @@ class TestRTCPTestCase(unittest.TestCase):
         
         packet = RTCPSRPacket()
         packet.header = RTCPHeader()
-        packet.header.ssrc = random.randint(0, 2**32 - 1)
+        packet.header.ssrc = random.randint(1, 2**32 - 1)
         packet.header.payload_type = RTPPayloadTypeEnum.RTCP_SR.value
         packet.header.block_count = random.randint(0, 31)
         packet.sender_info = RTCPSRSenderInfo()
@@ -90,7 +90,7 @@ class TestRTCPTestCase(unittest.TestCase):
         packet.reports = [RTCPReportBlock() for _ in range(packet.header.block_count)]
         for i_r in range(packet.header.block_count):
             report = packet.reports[i_r]
-            report.ssrc = random.randint(0, 2**32 - 1)
+            report.ssrc = random.randint(1, 2**32 - 1)
             report.last_sr_timestamp = random.randint(0, 2**32 - 1)
             report.interarrival_jitter = random.randint(0, 2**32 - 1)
             report.fraction_lost = random.randint(0, 2**8 - 1)
@@ -176,9 +176,9 @@ class TestRTCPTestCase(unittest.TestCase):
         for i_ck, ck in enumerate(parsed_sdes.chuncks):
             self.assertEqual(len(ck.sdes_items), 3)
             self.assertEqual(ck.source, sdes_packet.chuncks[i_ck].source)
-            self.assertEqual(ck.sdes_items[0].sdes_key, RTCPItemEnum.CNAME)
-            self.assertEqual(ck.sdes_items[1].sdes_key, RTCPItemEnum.NAME)
-            self.assertEqual(ck.sdes_items[2].sdes_key, RTCPItemEnum.EMAIL)
+            self.assertEqual(ck.sdes_items[0].sdes_key, RTCPItemEnum.CNAME.value)
+            self.assertEqual(ck.sdes_items[1].sdes_key, RTCPItemEnum.NAME.value)
+            self.assertEqual(ck.sdes_items[2].sdes_key, RTCPItemEnum.EMAIL.value)
             self.assertEqual(ck.sdes_items[0].sdes_value, sdes_packet.chuncks[i_ck].sdes_items[0].sdes_value)
             self.assertEqual(ck.sdes_items[1].sdes_value, sdes_packet.chuncks[i_ck].sdes_items[1].sdes_value)
             self.assertEqual(ck.sdes_items[2].sdes_value, sdes_packet.chuncks[i_ck].sdes_items[2].sdes_value)

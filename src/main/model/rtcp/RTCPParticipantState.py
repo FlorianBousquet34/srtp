@@ -2,9 +2,8 @@ from datetime import datetime
 from typing import Any
 from apscheduler.job import Job
 from main.model.rtcp.RTCPConsts import SECOND_TO_TIMESTAMP_MULTIPLIER, SEQ_NUM_BITS, SEQ_NUM_SIZE, TIMESTAMP_SIZE, TIMESTAMPS_BITS
-from main.scheduler.RTCPScheduler import RTCPScheduler
 from main.model.rtp.RTPSession import RTPSession
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from main.threading.UDPHandlingThread import UDPHandlingThread
 from main.threading.UDPListenningThread import UDPListenningThread
 import random
@@ -23,9 +22,10 @@ class RTCPParticipantState :
         self.latest_seq_num = random.SystemRandom().getrandbits(SEQ_NUM_BITS)
         self.timestamp_offset = random.SystemRandom().getrandbits(TIMESTAMPS_BITS)
         self.participant_join_time = datetime.utcnow()
+        self.handling_thread = UDPHandlingThread(session)
+        participant.participant_state = self
         self.listenning_thread = UDPListenningThread(session)
-        RTCPScheduler.schedule_next_rtcp_message(self)
-        
+    
     def refresh(self):
         
         # Refresh the state : tc, sender, members,
@@ -98,7 +98,7 @@ class RTCPParticipantState :
     initial: bool = True
     
     # The RTCP Job shceduler
-    rtcp_scheduler: AsyncIOScheduler
+    rtcp_scheduler: BackgroundScheduler
     
     # next BYE job (used to reschedule)
     bye_job : Job

@@ -21,8 +21,8 @@ class RTPListenner:
             if data[0] >> 6 & 0b11 == 2:
                 
                 # it is rtp
-                if (data[1] >> 7) & 1 != 0 and data & 0b1111111 in RTPPayloadTypeEnum.__members__.values():
-                    
+                if (data[1] >> 7) & 1 != 0 and data[1] & 0b1111111 in RTPPayloadTypeEnum._value2member_map_.keys():
+
                     # it is a rtcp compound packet
                     packet = RTCPCompoundPacket(data)
                     RTCPParser.parse_rtcp_compound_packet(packet)
@@ -33,9 +33,9 @@ class RTPListenner:
                     
                     for rtcp_packet in packet.packets:
                         
-                        RTPPacketHandler.handle_rtcp_packet(rtcp_packet)
+                        RTPPacketHandler.handle_rtcp_packet(rtcp_packet, session)
                 else:
-                    
+
                     # it is not a rtcp compouns packet
                     packet = RTPPacket(data)
                     RTPParser.parse_rtp_packet(packet)

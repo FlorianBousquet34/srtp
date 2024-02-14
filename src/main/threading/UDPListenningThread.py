@@ -2,7 +2,9 @@ import threading
 
 from main.model.rtp.RTPSession import RTPSession
 from main.model.srtp.SRTPSession import SRTPSession
+from apscheduler.schedulers.background import BackgroundScheduler
 
+from main.scheduler.RTCPScheduler import RTCPScheduler
 
 class UDPListenningThread(threading.Thread):
     def __init__(self, session):
@@ -13,10 +15,22 @@ class UDPListenningThread(threading.Thread):
     
     def run(self):
         
+        self.session.participant.participant_state.rtcp_scheduler = BackgroundScheduler()
+        self.session.leave_scheduler = BackgroundScheduler()
+        self.session.leave_scheduler.start()
+        self.session.participant.participant_state.rtcp_scheduler.start()
+        RTCPScheduler.schedule_next_rtcp_message(self.session.participant.participant_state)
+        
         while not self.interrupt:
             
-            packet = self.session.profile.sock.recv(self.session.profile.buffer_size)
-            
+            try:
+                packet = self.session.profile.sock.recv(self.session.profile.buffer_size)
+            except OSError as e:
+                if e.errno == 10038:
+                    return
+                else:
+                    raise e
+                                
             if(packet != b''):
                 
                 self.session.participant.participant_state.handling_thread.lock()

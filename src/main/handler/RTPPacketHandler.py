@@ -5,6 +5,7 @@ from main.model.rtcp.RTCPPacket import RTCPPacket
 from main.model.rtcp.rr.RTCPRRPacket import RTCPRRPacket
 from main.model.rtcp.sdes.RTCPSDESPacket import RTCPSDESPacket
 from main.model.rtcp.sr.RTCPSRPacket import RTCPSRPacket
+from main.model.rtp.RTPHeader import RTPHeader
 from main.model.rtp.RTPPacket import RTPPacket
 from main.model.rtp.RTPSession import RTPSession
 from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
@@ -14,8 +15,10 @@ class RTPPacketHandler:
     @staticmethod
     def handle_rtcp_packet(packet : RTCPPacket, session: RTPSession):
 
-        # Handle inactivity exit
-        RTPPacketHandler.handle_inactivity(packet.packet.header.ssrc, session)
+        if isinstance(packet.packet.header, RTPHeader) :
+            
+            # Handle inactivity exit
+            RTPPacketHandler.handle_inactivity(packet.packet.header.ssrc, session)
         
         # All rtcp packets have this flag
         if packet.packet.header.marker:
@@ -26,27 +29,28 @@ class RTPPacketHandler:
             
             else:
                 # Handle non BYE events
-            
-                # session participants handling
-                RTPPacketHandler.try_adding_participants_to_session(packet.packet.header.ssrc, session)
+                if isinstance(packet.packet.header, RTPHeader) :
+                    
+                    # session participants handling
+                    RTPPacketHandler.try_adding_participants_to_session(packet.packet.header.ssrc, session)
             
                 
                 # Treat according to message type
                 if packet.packet.header.payload_type == RTPPayloadTypeEnum.RTCP_SR.value:
                     
-                    RTPPacketHandler.handle_rtcp_sr_packet(packet, session)
+                    RTPPacketHandler.handle_rtcp_sr_packet(packet.packet, session)
                 
                 elif packet.packet.header.payload_type == RTPPayloadTypeEnum.RTCP_RR.value:
                     
-                    RTPPacketHandler.handle_rtcp_rr_packet(packet, session)
+                    RTPPacketHandler.handle_rtcp_rr_packet(packet.packet, session)
                 
                 elif packet.packet.header.payload_type == RTPPayloadTypeEnum.RTCP_SDES.value :
                     
-                    RTPPacketHandler.handle_rtcp_sdes_packet(packet, session)
+                    RTPPacketHandler.handle_rtcp_sdes_packet(packet.packet, session)
                 
                 elif packet.packet.header.payload_type == RTPPayloadTypeEnum.RTCP_APP.value :
                     
-                    RTPPacketHandler.handle_rtcp_app_packet(packet, session)                
+                    RTPPacketHandler.handle_rtcp_app_packet(packet.packet, session)                
 
                 
     @staticmethod
@@ -115,11 +119,12 @@ class RTPPacketHandler:
         # handle a RTCP SDES packet
         for chunck in packet.chuncks:
             
-            if session.sdes_info.get(packet.header.ssrc, None) is None:
-                session.sdes_info[packet.header.ssrc] = {}
+            ssrc = chunck.source
+            if session.sdes_info.get(ssrc, None) is None:
+                session.sdes_info[ssrc] = {}
                 
             for sdes in chunck.sdes_items:
-                session.sdes_info[packet.header.ssrc][sdes.sdes_key] = sdes.sdes_value
+                session.sdes_info[ssrc][sdes.sdes_key] = sdes.sdes_value
     
     @staticmethod
     def handle_rtcp_app_packet(packet : RTCPPacket, session: RTPSession):
