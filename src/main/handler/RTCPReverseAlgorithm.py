@@ -1,6 +1,6 @@
 import datetime
-from main.executor.RTCPJobExecutor import RTCPJobExecutor
-from main.model.rtp.RTPSession import RTPSession
+from src.main.executor.RTCPJobExecutor import RTCPJobExecutor
+from src.main.model.rtp.RTPSession import RTPSession
 from apscheduler.schedulers.background import BackgroundScheduler
 
 class RTCPReverseAlgorithm:

@@ -1,5 +1,5 @@
-from main.model.srtp.SRTPAuthMessage import SRTPAuthMessage
-from main.model.srtp.SRTPSession import SRTPSession
+from src.main.model.srtp.SRTPAuthMessage import SRTPAuthMessage
+from src.main.model.srtp.SRTPSession import SRTPSession
 
 
 class SRTPPacket:

@@ -1,5 +1,5 @@
-from main.model.rtp.RTPFixedHeader import RTPFixedHeader
-from main.model.rtp.RTPHeaderExtension import RTPHeaderExtension
+from src.main.model.rtp.RTPFixedHeader import RTPFixedHeader
+from src.main.model.rtp.RTPHeaderExtension import RTPHeaderExtension
 
 
 class RTPHeader:

@@ -1,17 +1,17 @@
-from main.model.rtcp.RTCPConsts import DELAY_MULTIPLIER, NTP_TIMESTAMP_MULTIPLIER, OFFSET_OCTETS, REPORT_BLOCK_LIMIT, REPORT_BLOCK_SIZE, SENDER_INFO_SIZE, SEQ_NUM_SIZE
-from main.model.rtcp.RTCPHeader import RTCPHeader
-from main.model.rtcp.RTCPSimpleHeader import RTCPSimpleHeader
-from main.model.rtcp.r.RTCPReportBlock import RTCPReportBlock
-from main.model.rtcp.rr.RTCPRRPacket import RTCPRRPacket
-from main.model.rtcp.sdes.RTCPSDESChunk import RTCPSDEChunk
-from main.model.rtcp.sdes.RTCPSDESPacket import RTCPSDESPacket
-from main.model.rtcp.sdes.items.RTCPGenericItem import RTCPGenericItem
-from main.model.rtcp.sr.RTCPSRPacket import RTCPSRPacket
-from main.model.rtcp.sr.RTCPSRSenderInfo import RTCPSRSenderInfo
-from main.model.rtp.RTPPacket import RTPPacket
-from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
+from src.main.model.rtcp.RTCPConsts import DELAY_MULTIPLIER, NTP_TIMESTAMP_MULTIPLIER, OFFSET_OCTETS, REPORT_BLOCK_LIMIT, REPORT_BLOCK_SIZE, SENDER_INFO_SIZE, SEQ_NUM_SIZE
+from src.main.model.rtcp.RTCPHeader import RTCPHeader
+from src.main.model.rtcp.RTCPSimpleHeader import RTCPSimpleHeader
+from src.main.model.rtcp.r.RTCPReportBlock import RTCPReportBlock
+from src.main.model.rtcp.rr.RTCPRRPacket import RTCPRRPacket
+from src.main.model.rtcp.sdes.RTCPSDESChunk import RTCPSDEChunk
+from src.main.model.rtcp.sdes.RTCPSDESPacket import RTCPSDESPacket
+from src.main.model.rtcp.sdes.items.RTCPGenericItem import RTCPGenericItem
+from src.main.model.rtcp.sr.RTCPSRPacket import RTCPSRPacket
+from src.main.model.rtcp.sr.RTCPSRSenderInfo import RTCPSRSenderInfo
+from src.main.model.rtp.RTPPacket import RTPPacket
+from src.main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
 import random
-from main.model.rtp.RTPSession import RTPSession
+from src.main.model.rtp.RTPSession import RTPSession
 
 class RTCPBuilder:
     
@@ -118,15 +118,14 @@ class RTCPBuilder:
         
         source_num = 0
         reports = [RTCPReportBlock() for _ in range(min(REPORT_BLOCK_LIMIT, len(session.lastest_received)))]
-        randomize_key = False
+
+        random_keys = session.lastest_received.keys()
         if len(reports) == REPORT_BLOCK_LIMIT:
-            randomize_key = True
+            random_keys = random.choices(session.lastest_received.keys(), k=REPORT_BLOCK_LIMIT)
+            
         while source_num < REPORT_BLOCK_LIMIT and source_num < len(session.lastest_received): 
             
-            if randomize_key:
-                reports[source_num].ssrc = random.choices(session.lastest_received.keys())
-            else:
-                reports[source_num].ssrc = session.lastest_received.keys()[source_num]
+            reports[source_num].ssrc = random_keys[source_num]
             
             RTCPBuilder.compute_rapport_loss(
                 session.lastest_received[reports[source_num].ssrc],

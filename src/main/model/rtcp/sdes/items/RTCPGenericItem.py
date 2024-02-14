@@ -1,4 +1,4 @@
-from main.model.rtcp.sdes.items.RTCPItemEnum import RTCPItemEnum
+from src.main.model.rtcp.sdes.items.RTCPItemEnum import RTCPItemEnum
 
 
 class RTCPGenericItem:

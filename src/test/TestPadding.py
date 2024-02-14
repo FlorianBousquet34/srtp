@@ -1,7 +1,7 @@
 import unittest
 import random
 
-from main.utils.transformer.PaddingUtils import PaddingUtils
+from src.main.utils.transformer.PaddingUtils import PaddingUtils
 
 class TestPaddingTestCase(unittest.TestCase):
     

@@ -1,12 +1,12 @@
 import datetime
 import socket
 from typing import Any
-from main.model.rtcp.RTCPConsts import DELETION_DELAY, JITTER_MULTIPLIER, NTP_TIMESTAMP_MULTIPLIER, RECEIVER_INACTIVITY_INTERVAL_COUNT, SENDER_INACTIVITY_INTERVAL_COUNT
-from main.model.rtcp.sdes.items.RTCPItemEnum import RTCPItemEnum
-from main.model.rtp.RTPPacket import RTPPacket
+from src.main.model.rtcp.RTCPConsts import DELETION_DELAY, JITTER_MULTIPLIER, NTP_TIMESTAMP_MULTIPLIER, RECEIVER_INACTIVITY_INTERVAL_COUNT, SENDER_INACTIVITY_INTERVAL_COUNT
+from src.main.model.rtcp.sdes.items.RTCPItemEnum import RTCPItemEnum
+from src.main.model.rtp.RTPPacket import RTPPacket
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from main.model.rtp.RTPSessionContext import RTPSessionContext
+from src.main.model.rtp.RTPSessionContext import RTPSessionContext
 
 class RTPSession:
     
@@ -55,7 +55,7 @@ class RTPSession:
         
     
     def add_to_session(self, ssrc : int, participant = None):
-        from main.model.rtp.RTPParticipant import RTPParticipant
+        from src.main.model.rtp.RTPParticipant import RTPParticipant
         # Add the ssrc to the session members
         if participant is None:
             self.session_members[ssrc] = RTPParticipant(ssrc)
@@ -148,7 +148,7 @@ class RTPSession:
             self.seq_num_roll[ssrc] += 1
     
     def quit_session(self):
-        from main.model.rtcp.RTCPParticipantState import RTCPParticipantState
+        from src.main.model.rtcp.RTCPParticipantState import RTCPParticipantState
         
         # interrupt threads
         state : RTCPParticipantState = self.participant.participant_state

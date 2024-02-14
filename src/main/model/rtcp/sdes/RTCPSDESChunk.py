@@ -1,5 +1,5 @@
-from main.model.rtcp.sdes.items.RTCPGenericItem import RTCPGenericItem
-from main.utils.transformer.PaddingUtils import PaddingUtils
+from src.main.model.rtcp.sdes.items.RTCPGenericItem import RTCPGenericItem
+from src.main.utils.transformer.PaddingUtils import PaddingUtils
 
 
 class RTCPSDEChunk:

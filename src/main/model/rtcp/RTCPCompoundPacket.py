@@ -1,5 +1,5 @@
 
-from main.model.rtcp.RTCPPacket import RTCPPacket
+from src.main.model.rtcp.RTCPPacket import RTCPPacket
 
 
 class RTCPCompoundPacket:

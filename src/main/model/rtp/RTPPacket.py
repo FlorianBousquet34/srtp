@@ -1,5 +1,5 @@
-from main.model.rtp.RTPHeader import RTPHeader
-from main.model.rtp.RTPPayload import RTPPayload
+from src.main.model.rtp.RTPHeader import RTPHeader
+from src.main.model.rtp.RTPPayload import RTPPayload
 
 
 class RTPPacket:

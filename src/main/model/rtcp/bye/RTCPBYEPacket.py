@@ -1,5 +1,5 @@
-from main.model.rtcp.RTCPSimpleHeader import RTCPSimpleHeader
-from main.model.rtcp.bye.RTCPBYEReason import RTCPBYEReason
+from src.main.model.rtcp.RTCPSimpleHeader import RTCPSimpleHeader
+from src.main.model.rtcp.bye.RTCPBYEReason import RTCPBYEReason
 
 
 class RTCPBYEPacket:

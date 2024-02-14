@@ -1,10 +1,10 @@
 import threading
 
-from main.model.rtp.RTPSession import RTPSession
-from main.model.srtp.SRTPSession import SRTPSession
+from src.main.model.rtp.RTPSession import RTPSession
+from src.main.model.srtp.SRTPSession import SRTPSession
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from main.scheduler.RTCPScheduler import RTCPScheduler
+from src.main.scheduler.RTCPScheduler import RTCPScheduler
 
 class UDPListenningThread(threading.Thread):
     def __init__(self, session):

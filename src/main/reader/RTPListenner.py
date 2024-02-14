@@ -1,12 +1,12 @@
-from main.handler.RTPPacketHandler import RTPPacketHandler
-from main.model.rtcp.RTCPCompoundPacket import RTCPCompoundPacket
-from main.model.rtcp.RTCPHeader import RTCPHeader
-from main.model.rtcp.RTCPPacket import RTCPPacket
-from main.model.rtp.RTPPacket import RTPPacket
-from main.model.rtp.RTPSession import RTPSession
-from main.parser.RTCPParser import RTCPParser
-from main.parser.RTPParser import RTPParser
-from main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
+from src.main.handler.RTPPacketHandler import RTPPacketHandler
+from src.main.model.rtcp.RTCPCompoundPacket import RTCPCompoundPacket
+from src.main.model.rtcp.RTCPHeader import RTCPHeader
+from src.main.model.rtcp.RTCPPacket import RTCPPacket
+from src.main.model.rtp.RTPPacket import RTPPacket
+from src.main.model.rtp.RTPSession import RTPSession
+from src.main.parser.RTCPParser import RTCPParser
+from src.main.parser.RTPParser import RTPParser
+from src.main.utils.enum.RTPPayloadTypeEnum import RTPPayloadTypeEnum
 
 PACKET_AVG_CONTRIBUTION = 1.0 / 16.0
 

@@ -1,4 +1,4 @@
-from main.model.rtcp.RTCPConsts import SMALL_HEADER_SIZE
+from src.main.model.rtcp.RTCPConsts import SMALL_HEADER_SIZE
 
 
 class RTCPSimpleHeader:

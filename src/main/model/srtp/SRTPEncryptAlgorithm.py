@@ -1,5 +1,5 @@
-from main.model.rtcp.RTCPConsts import PACKET_INDEX_COEFFICIENT, SALT_COEFFICIENT, SSRC_COEFFICIENT
-from main.model.srtp.SRTPEncryptionAlgorithmIdentifierEnum import SRTPEncryptionAlgorithmIdentifierEnum
+from src.main.model.rtcp.RTCPConsts import PACKET_INDEX_COEFFICIENT, SALT_COEFFICIENT, SSRC_COEFFICIENT
+from src.main.model.srtp.SRTPEncryptionAlgorithmIdentifierEnum import SRTPEncryptionAlgorithmIdentifierEnum
 import os
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 

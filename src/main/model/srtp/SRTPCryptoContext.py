@@ -1,6 +1,6 @@
-from main.model.rtp.RTPSessionContext import RTPSessionContext
-from main.model.srtp.SRTPAuthAlgorithm import SRTPAuthAlgorithm
-from main.model.srtp.SRTPEncryptAlgorithm import SRTPEncryptAlgorithm
+from src.main.model.rtp.RTPSessionContext import RTPSessionContext
+from src.main.model.srtp.SRTPAuthAlgorithm import SRTPAuthAlgorithm
+from src.main.model.srtp.SRTPEncryptAlgorithm import SRTPEncryptAlgorithm
 
 
 class SRTPCryptoContext:

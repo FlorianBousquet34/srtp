@@ -1,4 +1,4 @@
-from main.model.rtcp.RTCPConsts import REPORT_BLOCK_SIZE
+from src.main.model.rtcp.RTCPConsts import REPORT_BLOCK_SIZE
 
 
 class RTCPReportBlock:

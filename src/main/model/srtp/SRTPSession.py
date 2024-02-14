@@ -1,6 +1,6 @@
-from main.model.rtp.RTPSession import RTPSession
-from main.model.rtp.RTPSessionContext import RTPSessionContext
-from main.model.srtp.SRTPCryptoContext import SRTPCryptoContext
+from src.main.model.rtp.RTPSession import RTPSession
+from src.main.model.rtp.RTPSessionContext import RTPSessionContext
+from src.main.model.srtp.SRTPCryptoContext import SRTPCryptoContext
 from expiringdict import ExpiringDict
 
 class SRTPSession(RTPSession):

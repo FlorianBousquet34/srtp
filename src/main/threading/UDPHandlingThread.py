@@ -1,10 +1,10 @@
 import threading
 from time import sleep
 
-from main.model.rtp.RTPSession import RTPSession
-from main.model.srtp.SRTPSession import SRTPSession
-from main.reader.RTPListenner import RTPListenner
-from main.reader.SRTPListenner import SRTPListenner
+from src.main.model.rtp.RTPSession import RTPSession
+from src.main.model.srtp.SRTPSession import SRTPSession
+from src.main.reader.RTPListenner import RTPListenner
+from src.main.reader.SRTPListenner import SRTPListenner
 
 
 class UDPHandlingThread(threading.Thread):

@@ -2,20 +2,20 @@ import socket
 from time import sleep
 from typing import Any
 import unittest
-from main.handler.RTCPBYEAlgorithm import RTCPBYEAlgorithm
-from main.model.rtcp.sdes.items.RTCPItemEnum import RTCPItemEnum
-from main.model.rtp.RTPParticipant import RTPParticipant
+from src.main.handler.RTCPBYEAlgorithm import RTCPBYEAlgorithm
+from src.main.model.rtcp.sdes.items.RTCPItemEnum import RTCPItemEnum
+from src.main.model.rtp.RTPParticipant import RTPParticipant
 import random
 
-from main.model.rtp.RTPSession import RTPSession
-from main.model.rtp.RTPSessionContext import RTPSessionContext
+from src.main.model.rtp.RTPSession import RTPSession
+from src.main.model.rtp.RTPSessionContext import RTPSessionContext
 
 class TestRTPSessionTestCase(unittest.TestCase):
     
     
     @staticmethod
     def create_participant(ssrc: int, sdes_info: dict = {}):
-            from main.model.rtp.RTPParticipant import RTPParticipant
+            from src.main.model.rtp.RTPParticipant import RTPParticipant
             participant = RTPParticipant(ssrc, sdes_info)
             
             return participant

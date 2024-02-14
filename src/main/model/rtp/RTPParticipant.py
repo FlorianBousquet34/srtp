@@ -1,5 +1,5 @@
-from main.model.rtcp.RTCPParticipantState import RTCPParticipantState
-from main.model.rtp.RTPSession import RTPSession
+from src.main.model.rtcp.RTCPParticipantState import RTCPParticipantState
+from src.main.model.rtp.RTPSession import RTPSession
 
 
 class RTPParticipant:

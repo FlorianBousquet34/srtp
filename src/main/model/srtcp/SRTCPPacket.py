@@ -1,5 +1,5 @@
-from main.model.rtcp.RTCPConsts import IS_ENCRYPTED_MULTIPLIER
-from main.model.rtcp.RTCPPacket import RTCPPacket
+from src.main.model.rtcp.RTCPConsts import IS_ENCRYPTED_MULTIPLIER
+from src.main.model.rtcp.RTCPPacket import RTCPPacket
 
 class SRTCPPacket(RTCPPacket):
     

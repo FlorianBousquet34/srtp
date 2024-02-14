@@ -1,9 +1,9 @@
-from main.model.rtcp.RTCPCompoundPacket import RTCPCompoundPacket
-from main.model.rtcp.RTCPHeader import RTCPHeader
-from main.model.rtcp.sdes.items.RTCPItemEnum import RTCPItemEnum
-from main.model.rtp.RTPPacket import RTPPacket
-from main.model.rtp.RTPSession import RTPSession
-from main.utils.transformer.CNAMETransformer import CNAMETransformer
+from src.main.model.rtcp.RTCPCompoundPacket import RTCPCompoundPacket
+from src.main.model.rtcp.RTCPHeader import RTCPHeader
+from src.main.model.rtcp.sdes.items.RTCPItemEnum import RTCPItemEnum
+from src.main.model.rtp.RTPPacket import RTPPacket
+from src.main.model.rtp.RTPSession import RTPSession
+from src.main.utils.transformer.CNAMETransformer import CNAMETransformer
 
 
 class RTPSender:

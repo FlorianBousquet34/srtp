@@ -1,4 +1,4 @@
-from main.model.srtp.SRTPAuthenticationAlgorithmIdentifierEnum import SRTPAuthenticationAlgorithmIdentifierEnum
+from src.main.model.srtp.SRTPAuthenticationAlgorithmIdentifierEnum import SRTPAuthenticationAlgorithmIdentifierEnum
 import hmac
 import hashlib
 import base64

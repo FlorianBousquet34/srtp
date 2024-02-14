@@ -1,7 +1,7 @@
-from main.model.rtcp.RTCPConsts import RTP_HEADER_SIZE, SEQ_NUM_SIZE
-from main.model.rtp.RTPPacket import RTPPacket
-from main.model.srtcp.SRTCPCompoundPacket import SRTCPCompoundPacket
-from main.model.srtp.SRTPSession import SRTPSession
+from src.main.model.rtcp.RTCPConsts import RTP_HEADER_SIZE, SEQ_NUM_SIZE
+from src.main.model.rtp.RTPPacket import RTPPacket
+from src.main.model.srtcp.SRTCPCompoundPacket import SRTCPCompoundPacket
+from src.main.model.srtp.SRTPSession import SRTPSession
 
 
 class SRTPAuthMessage:

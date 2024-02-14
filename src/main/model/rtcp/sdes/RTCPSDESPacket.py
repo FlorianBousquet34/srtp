@@ -1,5 +1,5 @@
-from main.model.rtcp.RTCPSimpleHeader import RTCPSimpleHeader
-from main.model.rtcp.sdes.RTCPSDESChunk import RTCPSDEChunk
+from src.main.model.rtcp.RTCPSimpleHeader import RTCPSimpleHeader
+from src.main.model.rtcp.sdes.RTCPSDESChunk import RTCPSDEChunk
 
 
 class RTCPSDESPacket:
