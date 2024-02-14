@@ -17,7 +17,7 @@ class SRTPEncryptAlgorithm:
     
     def encrypt(self, data: bytearray, session, packet_index: int) -> bytearray:
         if self.algorithm_identifier == SRTPEncryptionAlgorithmIdentifierEnum.AES_COUNTER_MODE.value:
-            iv = int((int.from_bytes(session.session_salting_key) * SALT_COEFFICIENT) ^ (session.participant.ssrc * SSRC_COEFFICIENT) ^ (packet_index * PACKET_INDEX_COEFFICIENT)).to_bytes(16)
+            iv = int((int.from_bytes(session.session_salting_key) * SALT_COEFFICIENT) ^ (session.participant.ssrc * SSRC_COEFFICIENT) ^ (packet_index * PACKET_INDEX_COEFFICIENT)).to_bytes(16, "big")
             cipher = Cipher(algorithms.AES(session.session_encrypt_key), modes.CTR(iv))
             encryptor = cipher.encryptor()
             ct = encryptor.update(data) + encryptor.finalize()
@@ -30,7 +30,7 @@ class SRTPEncryptAlgorithm:
     
     def decrypt(self, data: bytearray, session, packet_index: int) -> bytearray:
         if self.algorithm_identifier == SRTPEncryptionAlgorithmIdentifierEnum.AES_COUNTER_MODE.value:
-            iv = int((int.from_bytes(session.session_salting_key) * SALT_COEFFICIENT) ^ (session.participant.ssrc * SSRC_COEFFICIENT) ^ (packet_index * PACKET_INDEX_COEFFICIENT)).to_bytes(16)
+            iv = int((int.from_bytes(session.session_salting_key) * SALT_COEFFICIENT) ^ (session.participant.ssrc * SSRC_COEFFICIENT) ^ (packet_index * PACKET_INDEX_COEFFICIENT)).to_bytes(16, "big")
             cipher = Cipher(algorithms.AES(session.session_encrypt_key), modes.CTR(iv))
             decryptor = cipher.decryptor()
             plain = decryptor.update(data) + decryptor.finalize()
