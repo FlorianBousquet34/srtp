@@ -40,8 +40,7 @@ class RTPSession:
         if found:
             found.is_leaving = True
             scheduler : BackgroundScheduler = self.leave_scheduler
-            scheduler.add_job(self.remove_from_session, trigger='date', next_run_time=datetime.datetime(second=DELETION_DELAY) 
-                                + datetime.datetime.now(), id=ssrc, args=[ssrc])
+            scheduler.add_job(self.remove_from_session, trigger='date', next_run_time=datetime.timedelta(seconds=DELETION_DELAY) + datetime.datetime.now(), args=[ssrc])
     
     def remove_from_session(self, ssrc: int):
         
